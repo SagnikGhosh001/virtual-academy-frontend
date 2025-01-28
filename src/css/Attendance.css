@@ -1,0 +1,31 @@
+.attendance-page {
+    padding: 20px;
+  }
+  
+  .attendance-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .attendance-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+  }
+  
+  .card-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .card-actions svg {
+    cursor: pointer;
+    font-size: 1.2em;
+    color: #1890ff;
+  }
+  
+  .card-actions svg:hover {
+    color: #ff4d4f;
+  }
+  
