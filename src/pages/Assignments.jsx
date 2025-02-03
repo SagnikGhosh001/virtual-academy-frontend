@@ -404,9 +404,9 @@ const Assignments = () => {
                   fullWidth
                   label="Name"
                   variant="outlined"
-                  {...register('name', { required: true })}
-                  error={!!errors.link}
-                  helperText={errors.link}
+                  {...register('name', { required: 'Name is required.' })}
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -416,7 +416,7 @@ const Assignments = () => {
                   variant="outlined"
                   {...register('link')}
                   error={!!errors.link}
-                  helperText={errors.link}
+                  helperText={errors.link?.message}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -426,7 +426,7 @@ const Assignments = () => {
                   variant="outlined"
                   {...register('description')}
                   error={!!errors.description}
-                  helperText={errors.description}
+                  helperText={errors.description?.message}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>

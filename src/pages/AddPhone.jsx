@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Container, Paper, TextField,Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Paper, TextField, Typography } from '@mui/material';
 
 
 import React, { useEffect } from 'react'
@@ -12,48 +12,48 @@ import { message, notification } from 'antd';
 
 function AddPhone() {
   useEffect(() => {
-      document.title = "Virtual Academy | Add Mobile";
-    }, []);
-    const { user, loading } = useSelector((state) => state?.auth);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-  
-    const {
-      handleSubmit,
-      register,
-      reset,  // Add reset to reset form data
-      setValue
-      , // Can be used to set form values manually if needed
-      formState: { errors },
-    } = useForm({
-        defaultValues: {
-            phone: user?.phone || '',  
-          }
+    document.title = "Virtual Academy | Add Mobile";
+  }, []);
+  const { user, loading } = useSelector((state) => state?.auth);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const {
+    handleSubmit,
+    register,
+    reset,  // Add reset to reset form data
+    setValue
+    , // Can be used to set form values manually if needed
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      phone: user?.phone || '',
+    }
+  });
+
+  const onSubmit = (data) => {
+    const currentUserId = user?.id;
+    const payload = { ...data, currentUserId };
+
+    dispatch(updatephone({ id: user?.id, userInput: payload })).then((res) => {
+      // console.log (res?.payload?.statusCodeValue);
+
+      if (res?.payload?.statusCodeValue === 200) {
+        notification.success({ message: 'Phone Updated Successfully' });
+        // setTimeout(() => {
+        navigate('/user/settings');
+        // }, 1000);
+      }
+      // else if (res?.type === 'updatephone/slice/rejected') {
+      //   toast.error(res?.payload);
+      //   reset({ email: ''}); 
+      // } 
+      else {
+        // notification.error({message:'Please enter correct details'});
+        reset({ email: '' });
+      }
     });
-  
-    const onSubmit = (data) => {
-      const currentUserId = user?.id;
-      const payload = { ...data, currentUserId };
-  
-      dispatch(updatephone({ id: user?.id, userInput: payload })).then((res) => {
-        // console.log (res?.payload?.statusCodeValue);
-        
-        if (res?.payload?.statusCodeValue === 200) {
-          notification.success({message:'Phone Updated Successfully'});
-          // setTimeout(() => {
-            navigate('/user/settings');
-          // }, 1000);
-        } 
-        // else if (res?.type === 'updatephone/slice/rejected') {
-        //   toast.error(res?.payload);
-        //   reset({ email: ''}); 
-        // } 
-        else {
-          // notification.error({message:'Please enter correct details'});
-          reset({ email: '' });  
-        }
-      });
-    };
+  };
 
   return (
     <>
@@ -62,14 +62,14 @@ function AddPhone() {
         <Paper elevation={3} sx={{ padding: 3, borderRadius: 2 }}>
           <Typography variant="h4" align="center" gutterBottom>
             {
-                user?.phone ? 'Update Your Phone' : 'Add Phone'
+              user?.phone ? 'Update Your Phone' : 'Add Phone'
             }
-            
+
           </Typography>
           <Typography variant="body1" sx={{ mb: 2 }}>
             This feature is currently unavailable!!!
           </Typography>
-          
+
           <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
             <TextField
               fullWidth
@@ -77,9 +77,15 @@ function AddPhone() {
               type="tel"
               variant="outlined"
               margin="normal"
-              {...register('phone', { required: true })}
+              {...register('phone', {
+                required: 'Phone no is required', pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "Enter a valid 10-digit phone number."
+                }
+              })
+              }
               error={!!errors.phone}
-              helperText={errors.phone && 'Phone is required'}
+              helperText={errors.phone?.message}
               required
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -91,7 +97,7 @@ function AddPhone() {
                 },
               }}
             />
-            
+
             <Button
               color="primary"
               variant="contained"
@@ -112,7 +118,7 @@ function AddPhone() {
             </Button>
           </Box>
         </Paper>
-        
+
       </Container>
     </>
   )

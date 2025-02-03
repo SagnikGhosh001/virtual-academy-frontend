@@ -171,14 +171,7 @@ const AllSem = () => {
                   )}
                 </List>
               </CardContent>
-              <CardActions sx={{ justifyContent: 'center' }}>
-                <Button size="small" color="primary" variant="contained">
-                  View Details
-                </Button>
-                <Button size="small" color="secondary" variant="outlined">
-                  Contact
-                </Button>
-              </CardActions>
+             
               <Modal
                 title="Edit Semester"
                 open={editModalOpen}

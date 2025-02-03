@@ -315,7 +315,7 @@ const Marks = () => {
                   fullWidth
                   inputProps={{ min: 0, max: 100 }}
                   {...register('mark', {
-                    required: 'Mark are required',
+                    required: 'Mark is required',
                     min: {
                       value: 0,
                       message: 'Mark cannot be less than 0',
@@ -326,8 +326,8 @@ const Marks = () => {
                     },
                   })}
 
-                  error={!!errors.marks}
-                  helperText={errors?.marks?.message}
+                  error={!!errors.mark}
+                  helperText={errors?.mark?.message}
                 />
               </Grid>
               <Grid item xs={12}>

@@ -186,7 +186,7 @@ const AssignmentUpload = () => {
         { field: 'studentName', headerName: 'Student', width: 200 },
         { field: 'reg', headerName: 'Registration', width: 200 },
         { field: 'marks', headerName: 'Marks', width: 200 },
-        { field: 'remarks', headerName: 'Remarks', width: 200 },
+        { field: 'remarks', headerName: 'Remarks', width: 200,renderCell: (params) => (params.value ? params.value : 'Not Given') },
         { field: 'teachername', headerName: 'Teacher', width: 200 },
         { field: 'assignmentName', headerName: 'Assignment', width: 250 },
         { field: 'subjectname', headerName: 'Subject', width: 250 },
@@ -354,11 +354,11 @@ const AssignmentUpload = () => {
                                     label="Remarks"
                                     variant="outlined"
                                     disabled={!editNotesId}
-                                    {...register('remarks', { required: !editNotesId ? false : true })}
+                                    {...register('remarks', { required: !editNotesId ? false : 'remarks is required' })}
                                     error={!!errors.remarks}
-                                    helperText={errors?.remarks}
+                                    helperText={errors?.remarks?.message}
                                 />
-                                {errors?.remarks && <p style={{ color: 'red' }}>{errors?.remarks?.message}</p>}
+                                {/* {errors?.remarks && <p style={{ color: 'red' }}>{errors?.remarks?.message}</p>} */}
                             </Grid>
                             {(user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') &&
                                 <Grid item xs={4}>

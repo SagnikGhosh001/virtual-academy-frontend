@@ -313,9 +313,9 @@ const Notes = () => {
                                     fullWidth
                                     label="Name"
                                     variant="outlined"
-                                    {...register('name', { required: true })}
-                                    error={!!errors.link}
-                                    helperText={errors.link}
+                                    {...register('name', { required: 'name is required' })}
+                                    error={!!errors.name}
+                                    helperText={errors.name?.message}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
