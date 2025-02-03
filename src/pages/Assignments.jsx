@@ -171,6 +171,7 @@ const Assignments = () => {
     {
       field: 'link', headerName: 'Link', width: 200,
       renderCell: (params) => (
+        params.value?
         <a
           href={params.value}
           target="_blank"
@@ -178,11 +179,11 @@ const Assignments = () => {
           style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
         >
           Open Link
-        </a>
+        </a> : 'Not Provided'
       )
     },
     { field: 'teachername', headerName: 'Teachername', width: 200 },
-    { field: 'description', headerName: 'Description', width: 200 },
+    { field: 'description', headerName: 'Description', width: 200,renderCell: (params) => (params.value ? params.value : 'Not Given') },
     {
       field: 'submissionDate',
       headerName: 'Submission Date',

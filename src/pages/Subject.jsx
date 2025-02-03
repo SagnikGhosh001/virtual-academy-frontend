@@ -146,7 +146,7 @@ const Subject = () => {
         { field: 'subname', headerName: 'Subject', width: 200, sortable: true },
         { field: 'deptname', headerName: 'Department', width: 300, sortable: true },
         { field: 'semname', headerName: 'Semester', width: 250, sortable: true },
-        { field: 'teachername', headerName: 'Teacher', width: 250, sortable: true },
+        { field: 'teachername', headerName: 'Teacher', width: 250, sortable: true,renderCell: (params) => (params.value ? params.value : 'Not Assigned') },
         { field: 'createdat', headerName: 'Created At', sortable: true, width: 200 },
         { field: 'modifiedat', headerName: 'Updated At', sortable: true, width: 200 },
 

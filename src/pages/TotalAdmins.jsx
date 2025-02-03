@@ -140,7 +140,7 @@ const TotalAdmins = () => {
         { field: 'email', headerName: 'Email ID', width: 200, sortable: true },
         // { field: 'emailVerified', headerName: 'Email Verified', sortable: true, valueFormatter: (params) => params.value ? 'Yes' : 'No' },
 
-        { field: 'phone', headerName: 'Phone No', width: 250, sortable: true },
+        { field: 'phone', headerName: 'Phone No', width: 250, sortable: true,renderCell: (params) => (params.value ? params.value : 'Not Given') },
         { field: 'college', headerName: 'College', width: 250, sortable: true },
         { field: 'createdby', headerName: 'Created By', width: 200, sortable: true },
         // {

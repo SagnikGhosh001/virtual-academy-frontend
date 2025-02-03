@@ -32,7 +32,7 @@ import { addtopic, deleteTopicbyId, downloadPdf, topicbySubId, updatetopic, uplo
 const Topics = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Topics";
-      }, []);
+    }, []);
     const { user } = useSelector((state) => state.auth);
     // const { notes, subnotes, loading } = useSelector((state) => state.notes);
     const { topic, subtopics, loading } = useSelector((state) => state.topic);
@@ -130,11 +130,11 @@ const Topics = () => {
                 try {
                     const teacherId = user?.id
                     const payload = { teacherId }
-                    const res=await dispatch(deleteTopicbyId({ id: id, userInput: payload }))
+                    const res = await dispatch(deleteTopicbyId({ id: id, userInput: payload }))
                     if (res?.payload?.statusCodeValue === 200) {
                         notification.success({ message: 'Topic wise note deleted successfully!' });
                     }
-                    
+
                     await dispatch(topicbySubId(originalId));
                 } catch (error) {
                     notification.error({ message: 'Failed to delete Topic wise note.' });
@@ -169,14 +169,15 @@ const Topics = () => {
         {
             field: 'link', headerName: 'Link', width: 200,
             renderCell: (params) => (
-                <a
-                    href={params.value}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
-                >
-                    Open Link
-                </a>
+                params.value ?
+                    <a
+                        href={params.value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
+                    >
+                        Open Link
+                    </a> : 'Not Provided'
             )
         },
         {
@@ -185,7 +186,7 @@ const Topics = () => {
             width: 150,
             renderCell: (params) => (
                 <div>
-                    {(user?.role === 'teacher' ||user?.role === 'hod'||user?.role === 'pic') ?
+                    {(user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ?
                         (<IconButton>
                             <input
                                 type="file"
@@ -225,7 +226,7 @@ const Topics = () => {
             width: 150,
             renderCell: (params) => (
                 <div>
-                    {(user?.role === 'teacher' ||user?.role === 'hod'||user?.role === 'pic') ? (
+                    {(user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                         <>
                             <IconButton onClick={() => handleEditClick(params.row)}>
                                 <EditIcon />
@@ -326,7 +327,7 @@ const Topics = () => {
             </Box>
             <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
                 {
-                    (user?.role === 'teacher' ||user?.role === 'hod'||user?.role === 'pic') ? (
+                    (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                         <>
                             <Button
                                 variant="contained"
@@ -402,7 +403,7 @@ const Topics = () => {
                                 )}
                             </Grid> */}
                             {
-                                (user?.role === 'teacher' ||user?.role === 'hod'||user?.role === 'pic') ? (
+                                (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                                     <>
                                         <Grid item xs={12}>
                                             <Button

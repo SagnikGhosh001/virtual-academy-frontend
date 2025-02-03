@@ -137,7 +137,7 @@ const Profile = () => {
         padding: '20px',
       }}
     >
-      <Card elevation={6} sx={{ maxWidth: 900, width: '100%', borderRadius: '12px' }}>
+      <Card elevation={6} sx={{ maxWidth: 900, width: '100%', borderRadius: '12px',backgroundColor: '#f5f5f5', }}>
         <CardContent>
           <Grid container spacing={4} alignItems="center">
             {/* Profile Picture and Name Section */}

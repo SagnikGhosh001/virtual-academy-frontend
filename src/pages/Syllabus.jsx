@@ -32,7 +32,7 @@ import { addsyllabus, deleteSyllabusbyId, downloadPdf, syllabusbyDeptId, updates
 const Syllabus = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Syllabus";
-      }, []);
+    }, []);
     const { user } = useSelector((state) => state.auth);
     const { syllabuses, deptsyllabus, loading } = useSelector((state) => state.syllabus);
     const dispatch = useDispatch();
@@ -149,7 +149,7 @@ const Syllabus = () => {
         (row) =>
             // (selectedDeptId ? row.deptname === selectedDeptId : true) &&
             (selectedSemId ? row.semname === selectedSemId : true)
-            // (selectedSubId ? row.subname === selectedSubId : true)
+        // (selectedSubId ? row.subname === selectedSubId : true)
     ) : [];
     const handleDeptChange = (event) => {
         setSelectedDeptId(event.target.value);
@@ -167,14 +167,15 @@ const Syllabus = () => {
         {
             field: 'link', headerName: 'Link', width: 200,
             renderCell: (params) => (
-                <a
-                    href={params.value}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
-                >
-                    Open Link
-                </a>
+                params.value ?
+                    <a
+                        href={params.value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
+                    >
+                        Open Link
+                    </a> : 'Not Provided'
             )
         },
         {
@@ -279,22 +280,22 @@ const Syllabus = () => {
                         </FormControl>
                     </Grid> */}
 
-                    <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth>
-                            <Select value={selectedSemId} onChange={handleSemChange} displayEmpty>
-                                <MenuItem value="">
-                                    <em>Select Semester</em>
-                                </MenuItem>
-                                {sem?.body?.map((semester) => (
-                                    <MenuItem key={semester.id} value={semester.semname}>
-                                        {semester.semname}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
+            <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                    <Select value={selectedSemId} onChange={handleSemChange} displayEmpty>
+                        <MenuItem value="">
+                            <em>Select Semester</em>
+                        </MenuItem>
+                        {sem?.body?.map((semester) => (
+                            <MenuItem key={semester.id} value={semester.semname}>
+                                {semester.semname}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Grid>
 
-{/* 
+            {/* 
                     <Grid item xs={12} sm={4}>
                         <FormControl fullWidth>
                             <Select value={selectedSubId} onChange={handleSubChange} displayEmpty>
@@ -375,34 +376,34 @@ const Syllabus = () => {
                                     helperText={errors.link}
                                 />
                             </Grid>
-                        
-                                <Grid item xs={12} sm={6}>
-                                    <Select
-                                        fullWidth
-                                        displayEmpty
-                                        defaultValue=""
-                                        disabled={editNotesId}
-                                        {...register('sem', {
-                                            required: editNotesId ? false : 'Please select a semester.',
-                                        })}
-                                        error={!!errors.sem}
-                                    >
-                                        <MenuItem value="" disabled>
-                                            Select Semester
+
+                            <Grid item xs={12} sm={6}>
+                                <Select
+                                    fullWidth
+                                    displayEmpty
+                                    defaultValue=""
+                                    disabled={editNotesId}
+                                    {...register('sem', {
+                                        required: editNotesId ? false : 'Please select a semester.',
+                                    })}
+                                    error={!!errors.sem}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Select Semester
+                                    </MenuItem>
+                                    {sem?.body?.map((semester) => (
+                                        <MenuItem key={semester.id} value={semester.id}>
+                                            {semester.semname}
                                         </MenuItem>
-                                        {sem?.body?.map((semester) => (
-                                            <MenuItem key={semester.id} value={semester.id}>
-                                                {semester.semname}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.sem && (
-                                        <Typography color="error" variant="caption">
-                                            {errors.sem.message}
-                                        </Typography>
-                                    )}
-                                </Grid>
-                            
+                                    ))}
+                                </Select>
+                                {errors.sem && (
+                                    <Typography color="error" variant="caption">
+                                        {errors.sem.message}
+                                    </Typography>
+                                )}
+                            </Grid>
+
 
                             {/* <Grid item xs={12} sm={6}>
                                 <Select

@@ -32,7 +32,7 @@ import { addbook, booksbySubId, deleteBook, downloadPdf, getallbooks, updateBook
 const Books = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Books";
-      }, []);
+    }, []);
     const { user } = useSelector((state) => state.auth);
     // const { notes, subnotes, loading } = useSelector((state) => state.notes);
     const { books, subbooks, loading } = useSelector((state) => state.book);
@@ -110,12 +110,12 @@ const Books = () => {
         const role = user?.role;
         const payload = { id, role, file };
         // console.log(payload);
-        
+
 
         try {
             await dispatch(uploadPdf(payload)).unwrap();
             notification.success({ message: 'PDF uploaded successfully!' });
-            await dispatch(booksbySubId(originalId)); 
+            await dispatch(booksbySubId(originalId));
         } catch (error) {
             notification.error({ message: 'Failed to upload PDF.' });
         }
@@ -129,11 +129,11 @@ const Books = () => {
                 try {
                     const userid = user?.id
                     const payload = { userid }
-                    const res=await dispatch(deleteBook({ id: id, userInput: payload }))
+                    const res = await dispatch(deleteBook({ id: id, userInput: payload }))
                     if (res?.payload?.statusCodeValue === 200) {
                         notification.success({ message: 'Book deleted successfully!' });
                     }
-                    
+
                     await dispatch(booksbySubId(originalId));
                 } catch (error) {
                     notification.error({ message: 'Failed to delete Book.' });
@@ -168,14 +168,15 @@ const Books = () => {
         {
             field: 'link', headerName: 'Link', width: 200,
             renderCell: (params) => (
-                <a
-                    href={params.value}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
-                >
-                    Open Link
-                </a>
+                params.value ?
+                    <a
+                        href={params.value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
+                    >
+                        Open Link
+                    </a> : 'Not Provided'
             )
         },
         {
@@ -184,7 +185,7 @@ const Books = () => {
             width: 150,
             renderCell: (params) => (
                 <div>
-                    {(user?.role === 'pic'||user?.role === 'hod'||user?.role === 'teacher') ?
+                    {(user?.role === 'pic' || user?.role === 'hod' || user?.role === 'teacher') ?
                         (<IconButton>
                             <input
                                 type="file"
@@ -224,7 +225,7 @@ const Books = () => {
             width: 150,
             renderCell: (params) => (
                 <div>
-                    {(user?.role === 'teacher'||user?.role === 'hod'||user?.role === 'pic') ? (
+                    {(user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                         <>
                             <IconButton onClick={() => handleEditClick(params.row)}>
                                 <EditIcon />
@@ -325,7 +326,7 @@ const Books = () => {
             </Box>
             <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
                 {
-                    (user?.role === 'teacher'||user?.role === 'hod'||user?.role === 'pic') ? (
+                    (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                         <>
                             <Button
                                 variant="contained"
@@ -401,7 +402,7 @@ const Books = () => {
                                 )}
                             </Grid> */}
                             {
-                                (user?.role === 'teacher'||user?.role === 'hod' ||user?.role === 'pic') ? (
+                                (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                                     <>
                                         <Grid item xs={12}>
                                             <Button

@@ -230,9 +230,9 @@ const TotalTeachers = () => {
         { field: 'gender', headerName: 'Gender', sortable: true },
         { field: 'email', headerName: 'Email ID', sortable: true, width: 200 },
         { field: 'emailVerified', headerName: 'Email Verified', sortable: true, renderCell: (params) => (params.value ? 'Yes' : 'No'), },
-        { field: 'phone', headerName: 'Phone No', sortable: true },
+        { field: 'phone', headerName: 'Phone No', sortable: true,renderCell: (params) => (params.value ? params.value : 'Not Added') },
         { field: 'college', headerName: 'College', sortable: true, width: 230 },
-        { field: 'deptname', headerName: 'Department', sortable: true, width: 200 },
+        { field: 'deptname', headerName: 'Department', sortable: true, width: 200,renderCell: (params) => (params.value ? params.value : 'Not Assigned') },
         {
             field: 'sem',
             headerName: 'Semester',
@@ -244,7 +244,7 @@ const TotalTeachers = () => {
                 const semesters = teacherSemesters[params.row.id] || [];
                 return semesters.length > 0
                     ? semesters.map((s) => s.semname).join(', ')
-                    : 'Not Available';
+                    : 'Not Assigned';
             },
         },
         { field: 'createdAt', headerName: 'Created At', sortable: true, },

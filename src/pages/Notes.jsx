@@ -32,7 +32,7 @@ import { useParams } from 'react-router-dom';
 const Notes = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Notes";
-      }, []);
+    }, []);
     const { user } = useSelector((state) => state.auth);
     const { notes, subnotes, loading } = useSelector((state) => state.notes);
     const dispatch = useDispatch();
@@ -129,11 +129,11 @@ const Notes = () => {
                 try {
                     const userid = user?.id
                     const payload = { userid }
-                    const res=await dispatch(deleteNotes({ id: id, userInput: payload }))
+                    const res = await dispatch(deleteNotes({ id: id, userInput: payload }))
                     if (res?.payload?.statusCodeValue === 200) {
                         notification.success({ message: 'Notes deleted successfully!' });
                     }
-                    
+
                     await dispatch(notesbySubId(originalId));
                 } catch (error) {
                     notification.error({ message: 'Failed to delete notes.' });
@@ -168,14 +168,15 @@ const Notes = () => {
         {
             field: 'link', headerName: 'Link', width: 200,
             renderCell: (params) => (
-                <a
-                    href={params.value}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
-                >
-                    Open Link
-                </a>
+                params.value ?
+                    <a
+                        href={params.value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
+                    >
+                        Open Link
+                    </a> : 'Not Provided'
             )
         },
         {
@@ -262,7 +263,7 @@ const Notes = () => {
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View our uploaded notes.
             </Typography>
-            
+
             <Box sx={{ marginTop: '30px' }}>
                 <Box sx={{ height: 600, marginTop: '20px' }}>
                     <DataGrid

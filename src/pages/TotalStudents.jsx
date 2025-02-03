@@ -28,8 +28,8 @@ import { styled } from '@mui/material/styles';
 
 const TotalStudents = () => {
   useEffect(() => {
-      document.title = "Virtual Academy | Total Students";
-    }, []);
+    document.title = "Virtual Academy | Total Students";
+  }, []);
   const { user, userlist, loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { dept } = useSelector((state) => state?.depts);
@@ -49,7 +49,7 @@ const TotalStudents = () => {
     setValue,
     watch,
     formState: { errors },
-  }  = useForm({
+  } = useForm({
     defaultValues: {
       reg: '',         // Default empty string or predefined values
       role: 'student', // Set default role as 'student'
@@ -112,9 +112,9 @@ const TotalStudents = () => {
 
   const handleEditClick = (record) => {
     setEditStudentId(record.id);
-    setValue('reg', record.reg );  
-    setValue('semId', record.semStaticId || ''); 
-    setValue('deptId', record.deptStaticId || ''); 
+    setValue('reg', record.reg);
+    setValue('semId', record.semStaticId || '');
+    setValue('deptId', record.deptStaticId || '');
     setValue('role', record.role || 'student');
     setIsEditModalOpen(true);
   };
@@ -146,11 +146,11 @@ const TotalStudents = () => {
         try {
           const currentUserId = user?.id
           const payload = { currentUserId }
-          const res=await dispatch(blockedStudent({ id: id, userInput: payload }))
+          const res = await dispatch(blockedStudent({ id: id, userInput: payload }))
           if (res?.payload?.statusCodeValue === 200) {
             notification.success({ message: 'Student Blocked successfully!' });
           }
-          
+
           dispatch(allstudents());
         } catch (error) {
           notification.error({ message: 'Failed to Blocked student.' });
@@ -206,10 +206,16 @@ const TotalStudents = () => {
     },
     { field: 'isblocked', headerName: 'Status', width: 100, renderCell: (params) => (params.value ? 'Blocked' : 'Unblocked') },
     { field: 'blockedby', headerName: 'Blocked By', width: 200, renderCell: (params) => (params.value ? params.value : 'Unblocked') },
-    { field: 'phone', headerName: 'Phone No.', width: 150 },
+    {
+      field: 'phone', headerName: 'Phone No.', width: 150,
+      renderCell: (params) => (params.value ? params.value : 'Not Added'),
+    },
     { field: 'college', headerName: 'College', width: 200 },
-    { field: 'semname', headerName: 'Semester', width: 150 },
-    { field: 'deptname', headerName: 'Department', width: 200 },
+    { field: 'semname', headerName: 'Semester', width: 150,renderCell: (params) => (params.value ? params.value : 'Not Given') },
+    {
+      field: 'deptname', headerName: 'Department', width: 200,
+      renderCell: (params) => (params.value ? params.value : 'Not Given')
+    },
     { field: 'reg', headerName: 'Registration No.', width: 180 },
     {
       field: 'createdAt',
@@ -232,7 +238,7 @@ const TotalStudents = () => {
       renderCell: (params) => (
         <>
           {
-            (user?.role === "admin" || user?.role==='pic' || user?.role==='hod') ? (
+            (user?.role === "admin" || user?.role === 'pic' || user?.role === 'hod') ? (
               <>
                 <IconButton onClick={() => handleEditClick(params.row)}>
                   <EditIcon />
@@ -315,7 +321,7 @@ const TotalStudents = () => {
               <Grid item xs={12} sm={6}>
                 <Select
                   fullWidth
-                  value={watch('role') || ''} 
+                  value={watch('role') || ''}
                   {...register('role', { required: true })}
                   error={!!errors.role}
                 >
@@ -333,7 +339,7 @@ const TotalStudents = () => {
               <Grid item xs={12} sm={6}>
                 <Select
                   fullWidth
-                  value={watch('deptId') || ''} 
+                  value={watch('deptId') || ''}
                   {...register('deptId', { required: true })}
                   error={!!errors.deptId}
                 >
@@ -355,7 +361,7 @@ const TotalStudents = () => {
               <Grid item xs={12} sm={6}>
                 <Select
                   fullWidth
-                  value={watch('semId') || ''} 
+                  value={watch('semId') || ''}
                   {...register('semId', { required: true })}
                   error={!!errors.semId}
                 >
