@@ -45,19 +45,19 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
     pageDimensions.current[index] = { width: originalWidth, height: originalHeight };
     adjustCanvasSize(index); // Adjust canvas size when the page loads
   };
+  useEffect(() => {
+    canvasRefs.forEach((_, index) => adjustCanvasSize(index));
+  }, [zoom]);
+  
   const adjustCanvasSize = (index) => {
     const canvas = canvasRefs[index]?.current;
     if (canvas && pageDimensions.current[index]) {
       const { width, height } = pageDimensions.current[index];
       canvas.width = width * zoom;
       canvas.height = height * zoom;
-      redrawAnnotations(index); // Redraw annotations after resizing
+      redrawAnnotations(index);
     }
   };
-
-  useEffect(() => {
-    canvasRefs.forEach((_, index) => adjustCanvasSize(index));
-  }, [zoom]);
 
   const scaleCoordinates = (clientX, clientY, pageIndex) => {
     const canvas = canvasRefs[pageIndex]?.current;
@@ -70,22 +70,8 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
       y: (clientY - rect.top) * scaleY,
     };
   };
-
-  const handleMouseMove = (e, pageIndex) => {
-    if (mode === 'erase') {
-      handleErase(e, pageIndex); // Call the handleErase function to update the erase path
-    }
-  };
-  
-  // Touch move for erase on mobile
-  const handleTouchMove = (e, pageIndex) => {
-    if (mode === 'erase') {
-      handleErase(e, pageIndex); // Call the handleErase function to update the erase path
-    }
-  };
-  
   // const handleMouseDown = (e, pageIndex) => {
-  //   e.preventDefault(); 
+  //   e.preventDefault();
   //   const canvas = canvasRefs[pageIndex]?.current;
   //   const context = canvas?.getContext('2d');
   //   if (context && mode !== 'view') {
@@ -94,16 +80,20 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
   //     context.beginPath();
   //     context.moveTo(x, y);
   //     path.points.push({ x, y });
-  
+
   //     const draw = (moveEvent) => {
-  //       const { x: moveX, y: moveY } = scaleCoordinates(moveEvent.clientX || moveEvent.touches[0].clientX, moveEvent.clientY || moveEvent.touches[0].clientY, pageIndex);
+  //       const { x: moveX, y: moveY } = scaleCoordinates(
+  //         moveEvent.clientX || moveEvent.touches[0].clientX,
+  //         moveEvent.clientY || moveEvent.touches[0].clientY,
+  //         pageIndex
+  //       );
   //       context.lineTo(moveX, moveY);
   //       context.strokeStyle = lineColor; // Use selected color
   //       context.lineWidth = lineWidth; // Use selected line width
   //       context.stroke();
   //       if (mode === 'draw') path.points.push({ x: moveX, y: moveY });
   //     };
-  
+
   //     const stopDrawing = () => {
   //       if (mode === 'draw') {
   //         const updatedPaths = [...drawnPaths];
@@ -115,7 +105,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
   //       canvas.removeEventListener('touchmove', draw);
   //       canvas.removeEventListener('touchend', stopDrawing);
   //     };
-  
+
   //     // Add event listeners for both mouse and touch events
   //     canvas.addEventListener('mousemove', draw);
   //     canvas.addEventListener('mouseup', stopDrawing);
@@ -123,19 +113,27 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
   //     canvas.addEventListener('touchend', stopDrawing, { once: true });
   //   }
   // };
-  
+
 
   const handleMouseDown = (e, pageIndex) => {
     e.preventDefault();
     const canvas = canvasRefs[pageIndex]?.current;
     const context = canvas?.getContext('2d');
     if (context && mode !== 'view') {
-      const path = { points: [], color: lineColor, width: lineWidth }; // Store color and width with the path
+      const path = { 
+        points: [], 
+        color: lineColor, 
+        width: lineWidth,
+        // Store original page dimensions and current zoom
+        originalWidth: pageDimensions.current[pageIndex].width,
+        originalHeight: pageDimensions.current[pageIndex].height,
+        zoomLevel: zoom, // Zoom level when the path was drawn
+      };
       const { x, y } = scaleCoordinates(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, pageIndex);
       context.beginPath();
       context.moveTo(x, y);
       path.points.push({ x, y });
-
+  
       const draw = (moveEvent) => {
         const { x: moveX, y: moveY } = scaleCoordinates(
           moveEvent.clientX || moveEvent.touches[0].clientX,
@@ -143,16 +141,16 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
           pageIndex
         );
         context.lineTo(moveX, moveY);
-        context.strokeStyle = lineColor; // Use selected color
-        context.lineWidth = lineWidth; // Use selected line width
+        context.strokeStyle = lineColor;
+        context.lineWidth = lineWidth;
         context.stroke();
         if (mode === 'draw') path.points.push({ x: moveX, y: moveY });
       };
-
+  
       const stopDrawing = () => {
         if (mode === 'draw') {
           const updatedPaths = [...drawnPaths];
-          updatedPaths[pageIndex] = [...updatedPaths[pageIndex], path]; // Store paths with their properties separately
+          updatedPaths[pageIndex] = [...updatedPaths[pageIndex], path];
           setDrawnPaths(updatedPaths);
         }
         canvas.removeEventListener('mousemove', draw);
@@ -160,35 +158,52 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
         canvas.removeEventListener('touchmove', draw);
         canvas.removeEventListener('touchend', stopDrawing);
       };
-
-      // Add event listeners for both mouse and touch events
+  
       canvas.addEventListener('mousemove', draw);
       canvas.addEventListener('mouseup', stopDrawing);
       canvas.addEventListener('touchmove', draw);
       canvas.addEventListener('touchend', stopDrawing, { once: true });
     }
   };
+  // const redrawAnnotations = (index) => {
+  //   const canvas = canvasRefs[index]?.current;
+  //   const context = canvas?.getContext('2d');
+  //   if (context && drawnPaths[index]) {
+  //     context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before redrawing
 
+  //     drawnPaths[index].forEach((path) => {
+  //       context.beginPath();
+  //       context.moveTo(path.points[0].x, path.points[0].y);
+  //       path.points.forEach((point) => {
+  //         context.lineTo(point.x, point.y);
+  //       });
+  //       context.strokeStyle = path.color; // Use the stored color for the path
+  //       context.lineWidth = path.width; // Use the stored width for the path
+  //       context.stroke();
+  //     });
+  //   }
+  // };
+  
 
   const redrawAnnotations = (index) => {
     const canvas = canvasRefs[index]?.current;
     const context = canvas?.getContext('2d');
     if (context && drawnPaths[index]) {
-      context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before redrawing
-
+      context.clearRect(0, 0, canvas.width, canvas.height);
+  
       drawnPaths[index].forEach((path) => {
         context.beginPath();
-        context.moveTo(path.points[0].x, path.points[0].y);
+        const scaleFactor = zoom / path.zoomLevel; // Calculate the scale factor
+        context.moveTo(path.points[0].x * scaleFactor, path.points[0].y * scaleFactor);
         path.points.forEach((point) => {
-          context.lineTo(point.x, point.y);
+          context.lineTo(point.x * scaleFactor, point.y * scaleFactor);
         });
-        context.strokeStyle = path.color; // Use the stored color for the path
-        context.lineWidth = path.width; // Use the stored width for the path
+        context.strokeStyle = path.color;
+        context.lineWidth = path.width;
         context.stroke();
       });
     }
   };
-  
   const preventScroll = (e) => {
     if (mode === 'draw' || mode === 'erase') {
       e.preventDefault();
@@ -352,28 +367,25 @@ const handleErase = (e, pageIndex) => {
         const pageWidth = page.getWidth();
         const pageHeight = page.getHeight();
   
-        // Get the canvas reference for this page
-        const canvas = canvasRefs[pageIndex]?.current;
-        if (!canvas) return; // Ensure canvas exists
-  
-        // Calculate canvas width and height
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-  
-        // Loop through each path on the page
         drawnPaths[pageIndex]?.forEach((path) => {
           if (path.points.length > 1) {
-            for (let i = 0; i < path.points.length - 1; i++) {
-              const startX = path.points[i].x * (pageWidth / canvasWidth);  // Adjust scaling
-              const startY = pageHeight - path.points[i].y * (pageHeight / canvasHeight);  // Flip Y axis for PDF-lib
-              const endX = path.points[i + 1].x * (pageWidth / canvasWidth);  // Adjust scaling
-              const endY = pageHeight - path.points[i + 1].y * (pageHeight / canvasHeight);  // Flip Y axis for PDF-lib
+            // Calculate scaling factors based on stored original dimensions
+            const scaleX = pageWidth / path.originalWidth;
+            const scaleY = pageHeight / path.originalHeight;
   
+            for (let i = 0; i < path.points.length - 1; i++) {
+              // Adjust for the zoom level when the path was drawn
+              const startX = (path.points[i].x / path.zoomLevel) * scaleX;
+              const startY = (path.points[i].y / path.zoomLevel) * scaleY;
+              const endX = (path.points[i + 1].x / path.zoomLevel) * scaleX;
+              const endY = (path.points[i + 1].y / path.zoomLevel) * scaleY;
+  
+              // Draw the line in PDF coordinates (Y-axis is inverted)
               page.drawLine({
-                start: { x: startX, y: startY },
-                end: { x: endX, y: endY },
-                color: getColor(path.color), // Use the getColor function to map the color
-                thickness: path.width, // Use the stored line width
+                start: { x: startX, y: pageHeight - startY },
+                end: { x: endX, y: pageHeight - endY },
+                color: getColor(path.color),
+                thickness: path.width,
               });
             }
           }
