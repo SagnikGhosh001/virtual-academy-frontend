@@ -4,21 +4,14 @@ import { Button, Typography, Box, Slider, Select, MenuItem } from '@mui/material
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { PDFDocument, rgb } from 'pdf-lib';
-// import { GlobalWorkerOptions } from 'pdfjs-dist';
-
-// GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${GlobalWorkerOptions.version}/pdf.worker.min.js`;
-// GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
 
  
 const PDFAnnotationComponent = ({ pdfData, onSave }) => {
   useEffect(() => {
-    // pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
     pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
 
-    // console.log(GlobalWorkerOptions.workerSrc);
-    // if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-    //   pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js';
-    // }
+  
   }, []);
   const [pdfUrl, setPdfUrl] = useState('');
   const [numPages, setNumPages] = useState(null);
@@ -50,14 +43,28 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
 
   const handlePageLoadSuccess = (index, { originalWidth, originalHeight }) => {
     pageDimensions.current[index] = { width: originalWidth, height: originalHeight };
+    adjustCanvasSize(index); // Adjust canvas size when the page loads
   };
+  const adjustCanvasSize = (index) => {
+    const canvas = canvasRefs[index]?.current;
+    if (canvas && pageDimensions.current[index]) {
+      const { width, height } = pageDimensions.current[index];
+      canvas.width = width * zoom;
+      canvas.height = height * zoom;
+      redrawAnnotations(index); // Redraw annotations after resizing
+    }
+  };
+
+  useEffect(() => {
+    canvasRefs.forEach((_, index) => adjustCanvasSize(index));
+  }, [zoom]);
 
   const scaleCoordinates = (clientX, clientY, pageIndex) => {
     const canvas = canvasRefs[pageIndex]?.current;
     if (!canvas || !pageDimensions.current[pageIndex]) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    const scaleX = pageDimensions.current[pageIndex].width / rect.width;
-    const scaleY = pageDimensions.current[pageIndex].height / rect.height;
+    const scaleX = (pageDimensions.current[pageIndex].width * zoom) / rect.width;
+    const scaleY = (pageDimensions.current[pageIndex].height * zoom) / rect.height;
     return {
       x: (clientX - rect.left) * scaleX,
       y: (clientY - rect.top) * scaleY,
@@ -77,8 +84,49 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
     }
   };
   
+  // const handleMouseDown = (e, pageIndex) => {
+  //   e.preventDefault(); 
+  //   const canvas = canvasRefs[pageIndex]?.current;
+  //   const context = canvas?.getContext('2d');
+  //   if (context && mode !== 'view') {
+  //     const path = { points: [], color: lineColor, width: lineWidth }; // Store color and width with the path
+  //     const { x, y } = scaleCoordinates(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, pageIndex);
+  //     context.beginPath();
+  //     context.moveTo(x, y);
+  //     path.points.push({ x, y });
+  
+  //     const draw = (moveEvent) => {
+  //       const { x: moveX, y: moveY } = scaleCoordinates(moveEvent.clientX || moveEvent.touches[0].clientX, moveEvent.clientY || moveEvent.touches[0].clientY, pageIndex);
+  //       context.lineTo(moveX, moveY);
+  //       context.strokeStyle = lineColor; // Use selected color
+  //       context.lineWidth = lineWidth; // Use selected line width
+  //       context.stroke();
+  //       if (mode === 'draw') path.points.push({ x: moveX, y: moveY });
+  //     };
+  
+  //     const stopDrawing = () => {
+  //       if (mode === 'draw') {
+  //         const updatedPaths = [...drawnPaths];
+  //         updatedPaths[pageIndex] = [...updatedPaths[pageIndex], path]; // Store paths with their properties separately
+  //         setDrawnPaths(updatedPaths);
+  //       }
+  //       canvas.removeEventListener('mousemove', draw);
+  //       canvas.removeEventListener('mouseup', stopDrawing);
+  //       canvas.removeEventListener('touchmove', draw);
+  //       canvas.removeEventListener('touchend', stopDrawing);
+  //     };
+  
+  //     // Add event listeners for both mouse and touch events
+  //     canvas.addEventListener('mousemove', draw);
+  //     canvas.addEventListener('mouseup', stopDrawing);
+  //     canvas.addEventListener('touchmove', draw);
+  //     canvas.addEventListener('touchend', stopDrawing, { once: true });
+  //   }
+  // };
+  
+
   const handleMouseDown = (e, pageIndex) => {
-    e.preventDefault(); 
+    e.preventDefault();
     const canvas = canvasRefs[pageIndex]?.current;
     const context = canvas?.getContext('2d');
     if (context && mode !== 'view') {
@@ -87,16 +135,20 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
       context.beginPath();
       context.moveTo(x, y);
       path.points.push({ x, y });
-  
+
       const draw = (moveEvent) => {
-        const { x: moveX, y: moveY } = scaleCoordinates(moveEvent.clientX || moveEvent.touches[0].clientX, moveEvent.clientY || moveEvent.touches[0].clientY, pageIndex);
+        const { x: moveX, y: moveY } = scaleCoordinates(
+          moveEvent.clientX || moveEvent.touches[0].clientX,
+          moveEvent.clientY || moveEvent.touches[0].clientY,
+          pageIndex
+        );
         context.lineTo(moveX, moveY);
         context.strokeStyle = lineColor; // Use selected color
         context.lineWidth = lineWidth; // Use selected line width
         context.stroke();
         if (mode === 'draw') path.points.push({ x: moveX, y: moveY });
       };
-  
+
       const stopDrawing = () => {
         if (mode === 'draw') {
           const updatedPaths = [...drawnPaths];
@@ -108,7 +160,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
         canvas.removeEventListener('touchmove', draw);
         canvas.removeEventListener('touchend', stopDrawing);
       };
-  
+
       // Add event listeners for both mouse and touch events
       canvas.addEventListener('mousemove', draw);
       canvas.addEventListener('mouseup', stopDrawing);
@@ -116,13 +168,14 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
       canvas.addEventListener('touchend', stopDrawing, { once: true });
     }
   };
-  
+
+
   const redrawAnnotations = (index) => {
     const canvas = canvasRefs[index]?.current;
     const context = canvas?.getContext('2d');
     if (context && drawnPaths[index]) {
       context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before redrawing
-  
+
       drawnPaths[index].forEach((path) => {
         context.beginPath();
         context.moveTo(path.points[0].x, path.points[0].y);
@@ -135,7 +188,6 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
       });
     }
   };
-  
   
   const preventScroll = (e) => {
     if (mode === 'draw' || mode === 'erase') {
@@ -150,114 +202,108 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
   }, [mode]);
 
   const toggleMode = (newMode) => setMode((prev) => (prev === newMode ? 'view' : newMode));
-  // Handle erase functionality
-  // const handleErase = (e, pageIndex) => {
-  //   e.preventDefault();
-  //   const { x, y } = scaleCoordinates(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, pageIndex);
-  //   const eraseRadius = 10; // Radius of the erase tool to capture nearby points.
   
-  //   const updatedPaths = [...drawnPaths];
-  //   const pagePaths = updatedPaths[pageIndex];
-  
-  //   // Check if the pagePaths exists and is an array before proceeding
-  //   if (Array.isArray(pagePaths)) {
-  //     // Iterate over each path for the page and attempt to erase points.
-  //     updatedPaths[pageIndex] = pagePaths.map((path) => {
-  //       // Ensure that the path has valid points to erase
-  //       if (Array.isArray(path.points) && path.points.length > 0) {
-  //         // Filter points that are not within the erase radius
-  //         const filteredPoints = path.points.filter((point) => {
-  //           if (point && point.x !== undefined && point.y !== undefined) {
-  //             const distance = Math.sqrt(Math.pow(x - point.x, 2) + Math.pow(y - point.y, 2));
-  //             return distance > eraseRadius; // Keep points outside of the erase radius
-  //           }
-  //           return true; // Ignore invalid points
-  //         });
-  
-  //         // Return a path with the points that weren't erased
-  //         return { ...path, points: filteredPoints };
-  //       }
-  //       return path; // Return the path unchanged if no valid points are found
-  //     });
-  //   }
-  
-  //   // Update the state with the new paths (without erased points).
-  //   setDrawnPaths(updatedPaths);
-  
-  //   // Redraw the page annotations after updating the paths.
-  //   redrawAnnotations(pageIndex);
-  // };
-  
-  const handleErase = (e, pageIndex) => {
-    e.preventDefault();
-    
-    // Safely extract mouse/touch coordinates
-    let x, y;
-    if (e.clientX && e.clientY) {
-      x = e.clientX;
-      y = e.clientY;
-    } else if (e.touches && e.touches[0]) {
-      x = e.touches[0].clientX;
-      y = e.touches[0].clientY;
-    }
-  
-    // Ensure x and y are valid
-    if (x === undefined || y === undefined) {
-      console.error('Invalid mouse/touch coordinates');
-      return;
-    }
-  
-    // Scale coordinates to fit the page
-    const { x: scaledX, y: scaledY } = scaleCoordinates(x, y, pageIndex);
-    const eraseRadius = 10; // Radius of the erase tool to capture nearby points.
-    
-    const updatedPaths = [...drawnPaths];
-    const pagePaths = updatedPaths[pageIndex];
-    
-    // Check if the pagePaths exists and is an array before proceeding
-    if (Array.isArray(pagePaths)) {
-      // Iterate over each path for the page and attempt to erase points.
-      updatedPaths[pageIndex] = pagePaths.map((path) => {
-        // Ensure that the path has valid points to erase
-        if (Array.isArray(path.points) && path.points.length > 0) {
-          // Filter points that are not within the erase radius
-          const filteredPoints = path.points.filter((point) => {
-            if (point && point.x !== undefined && point.y !== undefined) {
-              const distance = Math.sqrt(Math.pow(scaledX - point.x, 2) + Math.pow(scaledY - point.y, 2));
-              return distance > eraseRadius; // Keep points outside of the erase radius
-            }
-            return true; // Ignore invalid points
-          });
-  
-          // Return a path with the points that weren't erased
-          return { ...path, points: filteredPoints };
-        }
-        return path; // Return the path unchanged if no valid points are found
-      });
-    }
-  
-    // Update the state with the new paths (without erased points).
-    setDrawnPaths(updatedPaths);
-  
-    // Redraw the page annotations after updating the paths.
-    redrawAnnotations(pageIndex);
-  
-    // Draw a temporary white line at the cursor position for visual feedback
-    const canvas = canvasRefs[pageIndex]?.current;
-    const context = canvas?.getContext('2d');
-    if (context) {
-      context.beginPath();
-      context.arc(scaledX, scaledY, eraseRadius, 0, 2 * Math.PI); // Draw a circle at the erase location
-      context.fillStyle = 'white'; // Set the color to white
-      context.fill(); // Fill the circle
-      context.lineWidth = 1;
-      context.strokeStyle = 'white'; // Ensure the stroke is white
-      context.stroke();
-    }
-  };
   
 
-  // Handle resize for responsiveness
+ 
+  // Add a helper function to calculate distance from a point to a line segment
+const distanceToSegment = (x, y, x1, y1, x2, y2) => {
+  const A = x - x1;
+  const B = y - y1;
+  const C = x2 - x1;
+  const D = y2 - y1;
+
+  const dot = A * C + B * D;
+  const lenSq = C * C + D * D;
+  let param = -1;
+  if (lenSq !== 0) {
+    param = dot / lenSq;
+  }
+
+  let xx, yy;
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  } else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  } else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
+
+  const dx = x - xx;
+  const dy = y - yy;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+const handleErase = (e, pageIndex) => {
+  e.preventDefault();
+
+  // Only proceed if the mouse button is pressed or a touch is active
+  if (!(e.buttons === 1 || e.touches)) return;
+
+  let x, y;
+  if (e.clientX && e.clientY) {
+    x = e.clientX;
+    y = e.clientY;
+  } else if (e.touches?.[0]) {
+    x = e.touches[0].clientX;
+    y = e.touches[0].clientY;
+  } else {
+    return;
+  }
+
+  const { x: scaledX, y: scaledY } = scaleCoordinates(x, y, pageIndex);
+  const eraseRadius = 10;
+
+  const updatedPaths = [...drawnPaths];
+  const pagePaths = updatedPaths[pageIndex];
+
+  if (Array.isArray(pagePaths)) {
+    updatedPaths[pageIndex] = pagePaths.flatMap((path) => {
+      if (path.points.length < 2) return [path]; // No segments to erase
+
+      const newPaths = [];
+      let currentPath = [path.points[0]];
+
+      for (let i = 0; i < path.points.length - 1; i++) {
+        const start = path.points[i];
+        const end = path.points[i + 1];
+        const distance = distanceToSegment(scaledX, scaledY, start.x, start.y, end.x, end.y);
+
+        if (distance < eraseRadius) {
+          newPaths.push({ ...path, points: [...currentPath] });
+          currentPath = [end]; // Start new path after the erased segment
+        } else {
+          currentPath.push(end);
+        }
+      }
+
+      if (currentPath.length > 0) {
+        newPaths.push({ ...path, points: currentPath });
+      }
+
+      return newPaths;
+    });
+  }
+
+  setDrawnPaths(updatedPaths);
+  redrawAnnotations(pageIndex);
+
+  // Visual feedback for erase
+  const canvas = canvasRefs[pageIndex]?.current;
+  const context = canvas?.getContext('2d');
+  if (context) {
+    context.beginPath();
+    context.arc(scaledX, scaledY, eraseRadius, 0, 2 * Math.PI);
+    context.fillStyle = 'white';
+    context.fill();
+    context.strokeStyle = 'white';
+    context.stroke();
+  }
+};
+  
   const handleResize = () => {
     // Recalculate canvas size when the window is resized
     const updatedCanvasRefs = [...canvasRefs];
@@ -366,7 +412,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
           justifyContent: 'center', // Center buttons on small screens
         }}
       >
-        {/* <Button onClick={handleZoomIn} variant="contained" color="primary">
+        <Button onClick={handleZoomIn} variant="contained" color="primary">
           Zoom In
         </Button>
         <Button onClick={handleZoomOut} variant="contained" color="secondary">
@@ -379,7 +425,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
           step={0.1}
           onChange={(e, newValue) => setZoom(newValue)}
           aria-labelledby="zoom-slider"
-        /> */}
+        />
         <Typography variant="subtitle1" color="textSecondary">
           Mode: {mode.charAt(0).toUpperCase() + mode.slice(1)}
         </Typography>
