@@ -128,8 +128,12 @@ const AssignmentUpload = () => {
     const handleEditClick = async (record) => {
         setEditNotesId(record.id);
         // Use setValue to set the values in the form
-        setValue('marks', record.marks || '');  // Set value of marks
-        setValue('remarks', record.remarks || '');
+        // setValue('marks', record.marks || '');  // Set value of marks
+        // setValue('remarks', record.remarks || '');
+        reset({
+            marks: record.marks || '',
+            remarks: record.remarks || ''
+          });
         try {
             // Fetch the PDF as a Blob from the backend
             const pdfBlob = await dispatch(downloadBlobPdf(record.id)).unwrap(); // Get Blob from thunk
@@ -403,7 +407,7 @@ const AssignmentUpload = () => {
                 open={isEditPdfModalOpen}
                 onCancel={() => {
                     setIsEditPdfModalOpen(false);
-                    reset();
+                    // reset();
                 }}
                 footer={null}
                 width="100%"
