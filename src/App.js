@@ -40,6 +40,7 @@ import Assignments from './pages/Assignments';
 import Syllabus from './pages/Syllabus';
 import AssignmentUpload from './pages/AssignmentUpload';
 import InternetStatus from './components/InternetStatus'
+import Chat from './pages/Chat';
 
 
 
@@ -73,11 +74,12 @@ function App() {
           <Route path="/syllabus/:deptId" element={<Syllabus />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="*" element={<NotFound />} />
-
           {/* Protecting routes with PrivateRoute */}
           <Route path="/user" element={<PrivateRoute />}>
             <Route path="dashboard" element={<Dashboard />} />
+            
             <Route path="profile" element={<Profile />} />
+            <Route path="chat/:roomId" element={<Chat />} />
             <Route path="settings" element={<Settings />} />
             <Route path="marks" element={<Marks />} />
             <Route path="updateprofile" element={<UpdateProfile />} />

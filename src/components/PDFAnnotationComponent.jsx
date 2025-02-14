@@ -4,7 +4,7 @@ import { Button, Typography, Box, Slider, Select, MenuItem } from '@mui/material
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { PDFDocument, rgb } from 'pdf-lib';
-
+import ImageIcon from '@mui/icons-material/Image';
 
 const PDFAnnotationComponent = ({ pdfData, onSave }) => {
   useEffect(() => {
@@ -40,26 +40,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
       y: e.clientY || e.touches[0].clientY
     });
   };
-  // const handleResize = (e) => {
-  //   if (!isResizing || !selectedImageId) return;
 
-  //   const currentImage = images.find(img => img.id === selectedImageId);
-  //   const deltaX = ((e.clientX || e.touches[0].clientX) - resizeStart.x) / zoom;
-  //   const deltaY = ((e.clientY || e.touches[0].clientY) - resizeStart.y) / zoom;
-
-  //   setImages(images.map(img => 
-  //     img.id === selectedImageId ? {
-  //       ...img,
-  //       width: Math.max(50, currentImage.width + deltaX),
-  //       height: Math.max(50, currentImage.height + deltaY)
-  //     } : img
-  //   ));
-
-  //   setResizeStart({
-  //     x: e.clientX || e.touches[0].clientX,
-  //     y: e.clientY || e.touches[0].clientY
-  //   });
-  // };
 
   const handleResizeEnd = () => {
     setIsResizing(false);
@@ -67,16 +48,20 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
 
   // Update your useEffect for resize events
   useEffect(() => {
-    window.addEventListener('mousemove', handleResize);
-    window.addEventListener('touchmove', handleResize);
-    window.addEventListener('mouseup', handleResizeEnd);
-    window.addEventListener('touchend', handleResizeEnd);
+    const handleMove = (e) => handleResize(e);
+    const handleEnd = () => handleResizeEnd();
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMove);
+      window.addEventListener('touchmove', handleMove, { passive: false });
+      window.addEventListener('mouseup', handleEnd);
+      window.addEventListener('touchend', handleEnd);
+    }
 
     return () => {
-      window.removeEventListener('mousemove', handleResize);
-      window.removeEventListener('touchmove', handleResize);
-      window.removeEventListener('mouseup', handleResizeEnd);
-      window.removeEventListener('touchend', handleResizeEnd);
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchend', handleEnd);
     };
   }, [isResizing]);
 
@@ -90,32 +75,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
     setZoom(prevZoom => Math.max(prevZoom - 0.1, 0.5)); // Limit zoom out to 0.5x
   };
 
-  // const handleImageUpload = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = (event) => {
-  //       const img = new Image();
-  //       img.src = event.target.result;
-  //       img.onload = () => {
-  //         const newImage = {
-  //           id: Date.now(),
-  //           x: 100,
-  //           y: 100,
-  //           width: 100,
-  //           height: 100,
-  //           src: img,
-  //           pageIndex: currentPageIndex
-  //         };
-  //         setImages([...images, newImage]);
-  //       };
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
 
-  // Handle mouse down on image
-  // Modify handleImageMouseDown to handle both mouse and touch events
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -175,7 +135,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
       return;
     }
 
-    e.stopPropagation();
+    // e.stopPropagation();
     setSelectedImageId(imageId);
 
     const canvas = canvasRefs[pageIndex]?.current;
@@ -460,10 +420,11 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
 
   const handleResize = (e) => {
     if (!isResizing || !selectedImageId) return;
-
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
     const currentImage = images.find(img => img.id === selectedImageId);
-    const deltaX = (e.clientX - resizeStart.x) / zoom; // Scale deltaX by zoom
-    const deltaY = (e.clientY - resizeStart.y) / zoom; // Scale deltaY by zoom
+    const deltaX = (clientX - resizeStart.x) / zoom;
+    const deltaY = (clientY - resizeStart.y) / zoom;
 
     setImages(images.map(img =>
       img.id === selectedImageId ? {
@@ -626,7 +587,7 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
         }}
       >
         {/* Zoom Controls */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap' }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button
             variant="contained"
             color="primary"
@@ -665,18 +626,26 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
             mx: { xs: 1, sm: 2 }
           }}
         />
-
+       {mode==='view' &&
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          style={{ display: 'none' }}
+          id="image-upload"
+        />}
         {/* Add Image Button */}
         <label htmlFor="image-upload">
           <Button
             variant="contained"
             component="span"
+            disabled= {mode==='view' ? false : true}
             sx={{
               px: { xs: 1, sm: 2 },
               '& .MuiButton-startIcon': { margin: 0 }
             }}
           >
-            <CreateIcon sx={{ display: { xs: 'inline', sm: 'none' } }} />
+            <ImageIcon sx={{ display: { xs: 'inline', sm: 'none' } }} />
             <Typography
               variant="button"
               sx={{ display: { xs: 'none', sm: 'inline' }, ml: 1 }}
@@ -685,34 +654,6 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
             </Typography>
           </Button>
         </label>
-
-        {/* Mode Buttons */}
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="contained"
-            color={mode === 'draw' ? 'secondary' : 'primary'}
-            onClick={() => toggleMode('draw')}
-            sx={{
-              px: { xs: 1, sm: 2 },
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }
-            }}
-          >
-            {mode === 'draw' ? 'Stop' : 'Draw'}
-          </Button>
-          <Button
-            variant="contained"
-            color={mode === 'erase' ? 'secondary' : 'primary'}
-            onClick={() => toggleMode('erase')}
-            sx={{
-              px: { xs: 1, sm: 2 },
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }
-            }}
-          >
-            {mode === 'erase' ? 'Stop' : 'Erase'}
-          </Button>
-        </Box>
-
-        {/* Delete Button (only when image selected) */}
         {selectedImageId && (
           <Button
             variant="contained"
@@ -750,6 +691,70 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
             ))}
           </Select>
         )}
+
+
+        {/* Mode Buttons */}
+        <Box sx={{ display: 'flex', gap: 0 }}>
+          <Button
+            variant="contained"
+            color={mode === 'draw' ? 'secondary' : 'primary'}
+            onClick={() => toggleMode('draw')}
+            sx={{
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
+            {mode === 'draw' ? 'Stop' : 'Draw'}
+          </Button>
+
+          {mode === 'draw' &&
+            <>
+
+              <Select
+                value={lineColor}
+                onChange={(e) => setLineColor(e.target.value)}
+                displayEmpty
+                sx={{
+                  minWidth: '80px',
+                  height: '36px',
+                  fontSize: { marginLeft: '10px', xs: '0.75rem', sm: '0.875rem' }
+                }}
+
+              >
+                <MenuItem value="black">Black</MenuItem>
+                <MenuItem value="red">Red</MenuItem>
+                <MenuItem value="blue">Blue</MenuItem>
+                <MenuItem value="green">Green</MenuItem>
+              </Select>
+
+              <Slider
+                value={lineWidth}
+                min={1}
+                max={10}
+                step={1}
+                onChange={(e, newValue) => setLineWidth(newValue)}
+                valueLabelDisplay="auto"
+                valueLabelFormat={(value) => `${value}px`}
+                sx={{ width: '100px', marginLeft: '10px' }}
+              />
+            </>
+          }
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="contained"
+            color={mode === 'erase' ? 'secondary' : 'primary'}
+            onClick={() => toggleMode('erase')}
+            sx={{
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
+            {mode === 'erase' ? 'Stop' : 'Erase'}
+          </Button>
+        </Box>
+
+
 
         {/* Save Button */}
         <Button
@@ -800,9 +805,10 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
                   position: 'absolute',
                   top: 0,
                   left: 0,
-                  touchAction: 'none',
+                  // touchAction: 'none',
                   pointerEvents: 'auto',
                   background: 'transparent',
+                  // touchAction: 'pan-y',
                   // pointerEvents: mode === 'view' ? 'none' : 'auto',
                   cursor: mode === 'draw' ? 'crosshair' : 'default',
                   zIndex: 2,
@@ -857,7 +863,11 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
                         cursor: 'nwse-resize'
                       }}
                       onMouseDown={(e) => handleResizeStart(e, img.id)}
-                      onTouchStart={(e) => handleResizeStart(e, img.id)}
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        handleResizeStart(e, img.id)
+                      }}
+                   
                     />
                   )}
                 </div>

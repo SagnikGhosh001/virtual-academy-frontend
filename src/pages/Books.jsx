@@ -263,55 +263,7 @@ const Books = () => {
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View our uploaded books.
             </Typography>
-            {/* {
-                <Grid container spacing={2} sx={{ marginBottom: 2 }}>
-                    <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth>
-                            <Select value={selectedDeptId} onChange={handleDeptChange} displayEmpty>
-                                <MenuItem value="">
-                                    <em>Select Department</em>
-                                </MenuItem>
-                                {dept?.body?.map((department) => (
-                                    <MenuItem key={department.id} value={department.deptname}>
-                                        {department.deptname}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth>
-                            <Select value={selectedSemId} onChange={handleSemChange} displayEmpty>
-                                <MenuItem value="">
-                                    <em>Select Semester</em>
-                                </MenuItem>
-                                {sem?.body?.map((semester) => (
-                                    <MenuItem key={semester.id} value={semester.semname}>
-                                        {semester.semname}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-
-                    <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth>
-                            <Select value={selectedSubId} onChange={handleSubChange} displayEmpty>
-                                <MenuItem value="">
-                                    <em>Select Subject</em>
-                                </MenuItem>
-                                {subs?.map((subject) => (
-                                    <MenuItem key={subject.id} value={subject.subname}>
-                                        {subject.subname}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                </Grid>
-            } */}
+            
             <Box sx={{ marginTop: '30px' }}>
                 <Box sx={{ height: 600, marginTop: '20px' }}>
                     <DataGrid
@@ -377,30 +329,7 @@ const Books = () => {
                                 />
                             </Grid>
 
-                            {/* <Grid item xs={12} sm={6}>
-                                <Select
-                                    fullWidth
-                                    defaultValue=""
-                                    displayEmpty
-                                    {...register('subId', { required: !editNotesId })}
-                                    error={!!errors.subId}
-                                    disabled={editNotesId}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Select Subject
-                                    </MenuItem>
-                                    {subs?.map((listsub) => (
-                                        <MenuItem key={listsub.id} value={listsub.id}>
-                                            {listsub.subname}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {errors.subId && (
-                                    <Typography color="error" variant="caption">
-                                        Subject is required.
-                                    </Typography>
-                                )}
-                            </Grid> */}
+                            
                             {
                                 (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                                     <>

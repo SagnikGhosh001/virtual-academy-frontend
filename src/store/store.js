@@ -13,6 +13,9 @@ import AssignmentSlice from "../reducer/AssignmenSlice";
 import SyllabusSlice from "../reducer/SyllabusSlice";
 import AssignmentUploadSlice from "../reducer/AssignmentUpload";
 import MarksSlice from "../reducer/MarksSlice";
+import MessageSlice from "../reducer/MessageSlice";
+import RoomSlice from "../reducer/RoomSLice";
+
 
 export const store=configureStore(
     {
@@ -30,7 +33,9 @@ export const store=configureStore(
             assignment: AssignmentSlice,
             assignmentUpload: AssignmentUploadSlice,
             mark: MarksSlice,
-            syllabus: SyllabusSlice
+            syllabus: SyllabusSlice,
+            room: RoomSlice,
+            message: MessageSlice
         }
     }
 )

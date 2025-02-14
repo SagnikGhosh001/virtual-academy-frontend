@@ -13,6 +13,7 @@
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@mui/x-data-grid": "^7.23.1",
     "@reduxjs/toolkit": "^2.2.7",
+    "@stomp/stompjs": "^7.0.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -48,6 +49,7 @@
     "reactstrap": "^9.2.2",
     "resize-observer-polyfill": "^1.5.1",
     "smart-table-core": "^3.0.7",
+    "sockjs-client": "^1.6.1",
     "styled-components": "^6.1.12",
     "web-vitals": "^2.1.4"
   },
