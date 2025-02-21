@@ -32,7 +32,7 @@ export default function About() {
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8 }}
         >
           <Typography variant="h2" sx={{ fontWeight: "bold", mb: 2 }}>
@@ -50,7 +50,7 @@ export default function About() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
           <Typography
@@ -76,7 +76,7 @@ export default function About() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
           <Typography
@@ -92,12 +92,13 @@ export default function About() {
               "Secure data management with encrypted passwords and OTP verification.",
               "Comprehensive feedback system for platform improvement.",
               "Topic-wise resources and syllabus uploads for streamlined learning.",
+              "Interactive chat rooms, public or private, for real-time collaboration and discussion.",
             ].map((item, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, amount: 0.3 }}
+                  viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: index * 0.1 }}
                 >
                   <Card
@@ -133,7 +134,7 @@ export default function About() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
           <Typography

@@ -5,8 +5,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
+import { notification } from 'antd';
 
-
+notification.config({
+  placement: 'top',
+  top: 50,
+  pauseOnHover:true,
+  showProgress:true,
+  duration: 6,
+  // rtl: true,
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

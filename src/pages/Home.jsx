@@ -26,7 +26,7 @@ export default function Home() {
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.8 }}
       >
         <Box
@@ -80,7 +80,7 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: false, amount: 0.5 }}
+          viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.5 }}
         >
           <Typography
@@ -118,6 +118,11 @@ export default function Home() {
                 "Provide valuable feedback to enhance your learning experience and improve the platform.",
             },
             {
+              title: "Interactive Chat Rooms",
+              description:
+                "Create public or private chat rooms to collaborate, discuss, and connect with others in real time.",
+            },
+            {
               title: "Secure Access",
               description:
                 "Role-based access control, encrypted passwords, and OTP verification ensure data security.",
@@ -127,7 +132,7 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false, amount: 0.3 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ delay: index * 0.1 }}
               >
                 <Card

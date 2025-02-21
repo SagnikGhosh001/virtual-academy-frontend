@@ -39,9 +39,8 @@ import { getPic } from '../reducer/AuthSlice';
 import WebSocketService from '../reducer/WebSocketService';
 import { useForm } from 'react-hook-form';
 import { Modal, notification, Spin } from 'antd';
-
-
-
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 
 
 
@@ -101,13 +100,16 @@ const Chat = () => {
     const [userAvatars, setUserAvatars] = useState({});
     const [isPrivate, setIsPrivate] = useState(0);
     const [imageurl, setImageurl] = useState(0);
+    const [singleimageurl, setSingleimageurl] = useState(0);
     // Add this right after your other useEffect hooks
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]); // This will trigger on every messages array change
+    // useEffect(() => {
+    //     scrollToBottom();
+    // }, 
+    // [messages]); // This will trigger on every messages array change
     useEffect(() => {
         document.title = "Virtual Academy | Chat";
     }, []);
+
     // Your existing scroll function
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({
@@ -122,30 +124,72 @@ const Chat = () => {
         watch,
         formState: { errors },
     } = useForm();
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (
+            roomsbyroomid?.participants &&
+            !roomsbyroomid.participants.some(participant => participant.id === user?.id)
+        ) {
+            navigate('/user/dashboard');
+        }
+    }, [roomsbyroomid, user, navigate]);
     useEffect(() => {
         const initializeWebSocket = () => {
             const socket = new SockJS('http://localhost:9091/ws-chat');
             // const socket = new SockJS(' https://mountains-wonder-well-duo.trycloudflare.com/ws-chat');
             const client = new Client({
                 webSocketFactory: () => socket,
-                reconnectDelay: 5000,
+                reconnectDelay: 5000, // Retry every 5 seconds if disconnected
+                heartbeatIncoming: 4000, // Check server is alive every 4s
+                heartbeatOutgoing: 4000,
                 // debug: (str) => console.log('[WS]', str),
             });
 
             client.onConnect = () => {
                 client.subscribe(`/topic/room/${originalId}`, (message) => {
                     const received = JSON.parse(message.body);
-                    console.log('Received message:', received);
+                    if (!received || (!received.content && received.type !== 'DELETE' && received.type !== 'ROOMDELETE' && received.type !== 'LEAVE' && received.type !== 'KICK')) {
+                        // console.log('Skipping invalid or empty message:', received);
+                        return;
+                    }
+                    // console.log('Received message:', received);
                     setMessages(prev => {
                         if (received.type === 'DELETE') {
 
                             return prev.filter(msg => msg.id !== received.id);
                         }
+                        if (received.type === 'ROOMDELETE' && originalId === received.roomId) {
+                            notification.success({ message: "THis Room Has Been Deleted By It's Creator." })
+                            navigate('/user/dashboard');
+                            return prev;
+                        }
+                        if (received.type === 'LEAVE' && user?.id === received.userId) {
+                            notification.success({ message: "You leave this room successfully." })
+                            navigate('/user/dashboard');
+                            return prev;
+                        }
+                        if (received.type === 'KICK') {
+                            if (user?.id === received.userId) {
+                                notification.error({ message: "You are no longer in this room, creator kicked you out." })
+                                navigate('/user/dashboard');
+                            }
+                            if (user?.id === received.creatorId) {
+                                notification.success({ message: "Participent deleted successfully." })
+                            }
+                            return prev;
+                        }
                         const exists = prev.some(msg => msg.id === received.id);
+                        if (exists) {
+                            return prev.map((msg) => (msg.id === received.id ? received : msg));
+                        }
 
-                        return exists
-                            ? prev.map(msg => msg.id === received.id ? received : msg)
-                            : [...prev, received];
+                        // Only add messages with actual content
+                        if (received.content) {
+                            return [...prev, received];
+                        }
+
+                        return prev;
+
                     });
                 });
             };
@@ -162,12 +206,13 @@ const Chat = () => {
             try {
                 const result = await dispatch(messagebyroomid(originalId))
                 setMessages(result?.payload?.body);
+                await scrollToBottom();
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
         };
         fetchInitialMessages();
-    }, [dispatch, originalId]);
+    }, [dispatch, originalId, navigate, user?.id]);
     const handleSendMessage = () => {
         if (!stompClient || !newMessage.trim()) return;
 
@@ -214,6 +259,82 @@ const Chat = () => {
             dispatch(roombyRoomId(originalId))
         }
     }
+
+    const handleDeleteClick = () => {
+        if (!stompClient) return;
+        Modal.confirm({
+            title: 'Are you sure you want to delete this room?',
+            onOk: async () => {
+                try {
+                    const deleteDTO = {
+                        creatorid: user?.id,
+                        roomId: originalId,
+                        type: 'DELETE'
+                    };
+                    stompClient.publish({
+                        destination: `/app/room/${originalId}/delete`,
+                        body: JSON.stringify(deleteDTO),
+                        headers: { 'content-type': 'application/json' }
+                    });
+                    // setAnchorEl(null);
+                } catch (error) {
+                    notification.error({ message: 'Failed to delete room.' });
+                }
+            },
+        });
+    };
+
+    const handleLeaveRoom = () => {
+        if (!stompClient) return;
+        Modal.confirm({
+            title: 'Are you sure you want to leave this room?',
+            onOk: async () => {
+                try {
+                    const leaveDTO = {
+                        joinid: user?.id,
+                        roomId: originalId,
+                        type: 'DELETE'
+                    };
+                    stompClient.publish({
+                        destination: `/app/room/${originalId}/leave`,
+                        body: JSON.stringify(leaveDTO),
+                        headers: { 'content-type': 'application/json' }
+                    });
+                } catch (error) {
+                    notification.error({ message: 'Failed to leave room.' });
+                }
+            },
+        });
+
+
+
+    }
+    const handleKickRoom = (id) => {
+        if (!stompClient) return;
+        Modal.confirm({
+            title: 'Are you sure you want to kick this participent?',
+            onOk: async () => {
+                try {
+                    const leaveDTO = {
+                        creatorid: user?.id,
+                        joinid: id,
+                        roomId: originalId,
+                        type: 'DELETE'
+                    };
+                    stompClient.publish({
+                        destination: `/app/room/${originalId}/kick`,
+                        body: JSON.stringify(leaveDTO),
+                        headers: { 'content-type': 'application/json' }
+                    });
+                } catch (error) {
+                    notification.error({ message: 'Failed to delete this participent.' });
+                }
+            },
+        });
+
+
+
+    }
     // Modified delete handler
     const handleDeleteMessage = () => {
 
@@ -252,7 +373,7 @@ const Chat = () => {
             try {
                 const resultAction = await dispatch(getPic({ id: user?.id, gender: user?.gender }));
                 const image = resultAction.payload;
-                setImageurl(image)
+                setSingleimageurl(image)
             } catch (error) {
                 console.error('Failed to fetch picture:', error);
             }
@@ -280,28 +401,9 @@ const Chat = () => {
         dispatch(roombyRoomId(originalId))
     }, [dispatch]);
 
-    const navigate = useNavigate()
-
-    const handleDeleteClick = () => {
-        Modal.confirm({
-            title: 'Are you sure you want to delete this room?',
-            onOk: async () => {
-                try {
-                    const creatorid = user?.id
-                    const payload = { creatorid }
-                    const res = await dispatch(deleteroombyid({ id: originalId, userInput: payload }))
-                    if (res?.payload?.statusCodeValue === 200) {
-                        notification.success({ message: 'Room deleted successfully!' });
-                        navigate("/user/dashboard")
-                    }
 
 
-                } catch (error) {
-                    notification.error({ message: 'Failed to delete room.' });
-                }
-            },
-        });
-    };
+
 
     const handleEditMessage = () => {
         setIsedit(true)
@@ -387,7 +489,7 @@ const Chat = () => {
                             ml: 'auto',
                             maxWidth: { xs: '120px', sm: 'none' }
                         }}
-                        avatar={<Avatar src={imageurl} />}
+                        avatar={<Avatar src={singleimageurl} />}
                         label={
                             <Typography
                                 variant="body2"
@@ -401,6 +503,15 @@ const Chat = () => {
                         }
                         variant="outlined"
                     />
+                    {
+                        roomsbyroomid?.creator?.id !== user?.id &&
+                        <IconButton
+                            onClick={() => { handleLeaveRoom() }}
+                            sx={{ ml: 0.5 }}
+                        >
+                            <LogoutIcon fontSize="small" />
+                        </IconButton>
+                    }
 
                 </Toolbar>
             </AppBar>
@@ -425,6 +536,18 @@ const Chat = () => {
                     <List>
                         {roomsbyroomid?.participants?.map((participant) => (
                             <ListItem key={participant.id} sx={{ display: 'flex', alignItems: 'center' }}>
+                                {
+                                    roomsbyroomid?.creator?.id === user?.id &&
+                                    <IconButton
+                                        onClick={() => { handleKickRoom(participant.id) }}
+                                        sx={{ ml: 0.5 }}
+                                        color="error"
+                                        disabled={participant.id === roomsbyroomid?.creator?.id}
+                                    >
+                                        <PersonRemoveIcon fontSize="small" />
+                                    </IconButton>
+                                }
+
                                 <Avatar sx={{ mr: 2, width: 32, height: 32 }} src={userAvatars[participant?.id]} />
                                 <ListItemText
                                     primary={participant?.email}
@@ -448,7 +571,7 @@ const Chat = () => {
             </Drawer>
 
             <MessageContainer>
-                {messages.map((message) => (
+                {messages?.map((message) => (
                     <MessageBubble
                         key={message?.id}
                         isCurrentUser={message?.sender?.id === user?.id}
@@ -468,7 +591,7 @@ const Chat = () => {
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                maxWidth: '100px', // Adjust based on your layout
+                                maxWidth: '200px', // Adjust based on your layout
                             }}>
                                 {message?.sender?.id === user?.id ? 'You' : message?.sender?.email}
                             </Typography>
