@@ -104,7 +104,7 @@ export const joinroom = createAsyncThunk(
         try {
             const response = await axiosInstance.post("/room/joinroom", userInput);
 
-            return response?.data;
+            return response;
             
             
         } catch (error) {

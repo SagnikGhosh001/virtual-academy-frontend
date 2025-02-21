@@ -124,8 +124,9 @@ function Dashboard() {
         };
 
         const res = await dispatch(joinroom(payload))
-
-        if (res?.payload?.statusCodeValue === 200) {
+        console.log(res);
+        
+        if (res?.payload?.status === 200) {
           notification.success({ message: 'Room Joind successfully!' });
           setOpenRoomModal(false);
           navigate(`/user/chat/${urlSafeEncryptedId}`);

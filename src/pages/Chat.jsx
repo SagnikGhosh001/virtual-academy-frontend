@@ -44,6 +44,7 @@ import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 
 
 
+
 const ChatContainer = styled('div')({
     display: 'flex',
     flexDirection: 'column',
@@ -101,6 +102,8 @@ const Chat = () => {
     const [isPrivate, setIsPrivate] = useState(0);
     const [imageurl, setImageurl] = useState(0);
     const [singleimageurl, setSingleimageurl] = useState(0);
+    const [participants, setParticipants] = useState([])
+
     // Add this right after your other useEffect hooks
     // useEffect(() => {
     //     scrollToBottom();
@@ -134,85 +137,105 @@ const Chat = () => {
         }
     }, [roomsbyroomid, user, navigate]);
     useEffect(() => {
-        const initializeWebSocket = () => {
-            const socket = new SockJS('http://localhost:9091/ws-chat');
-            // const socket = new SockJS(' https://mountains-wonder-well-duo.trycloudflare.com/ws-chat');
-            const client = new Client({
-                webSocketFactory: () => socket,
-                reconnectDelay: 5000, // Retry every 5 seconds if disconnected
-                heartbeatIncoming: 4000, // Check server is alive every 4s
-                heartbeatOutgoing: 4000,
-                // debug: (str) => console.log('[WS]', str),
-            });
 
-            client.onConnect = () => {
-                client.subscribe(`/topic/room/${originalId}`, (message) => {
-                    const received = JSON.parse(message.body);
-                    if (!received || (!received.content && received.type !== 'DELETE' && received.type !== 'ROOMDELETE' && received.type !== 'LEAVE' && received.type !== 'KICK')) {
-                        // console.log('Skipping invalid or empty message:', received);
-                        return;
+        const socket = new SockJS('http://localhost:9091/ws-chat');
+        // const socket = new SockJS(' https://mountains-wonder-well-duo.trycloudflare.com/ws-chat');
+        const client = new Client({
+            webSocketFactory: () => socket,
+            reconnectDelay: 5000, // Retry every 5 seconds if disconnected
+            heartbeatIncoming: 4000, // Check server is alive every 4s
+            heartbeatOutgoing: 4000,
+            // debug: (str) => console.log('[WS]', str),
+        });
+
+        client.onConnect = () => {
+            client.subscribe(`/topic/room/${originalId}`, (message) => {
+                const received = JSON.parse(message?.body);
+                if (!received || (!received.content && received.type !== 'DELETE' &&received.type !== 'JOIN' && received.type !== 'ROOMDELETE' && received.type !== 'LEAVE' && received.type !== 'KICK')) {
+                    // console.log('Skipping invalid or empty message:', received);
+                    return;
+                }
+                // console.log('Received message:', received);
+                setMessages(prev => {
+                    if (received.type === 'DELETE') {
+                        return prev.filter(msg => msg.id !== received.id);
                     }
-                    // console.log('Received message:', received);
-                    setMessages(prev => {
-                        if (received.type === 'DELETE') {
-
-                            return prev.filter(msg => msg.id !== received.id);
-                        }
-                        if (received.type === 'ROOMDELETE' && originalId === received.roomId) {
-                            notification.success({ message: "THis Room Has Been Deleted By It's Creator." })
-                            navigate('/user/dashboard');
-                            return prev;
-                        }
-                        if (received.type === 'LEAVE' && user?.id === received.userId) {
-                            notification.success({ message: "You leave this room successfully." })
-                            navigate('/user/dashboard');
-                            return prev;
-                        }
-                        if (received.type === 'KICK') {
-                            if (user?.id === received.userId) {
-                                notification.error({ message: "You are no longer in this room, creator kicked you out." })
-                                navigate('/user/dashboard');
-                            }
-                            if (user?.id === received.creatorId) {
-                                notification.success({ message: "Participent deleted successfully." })
-                            }
-                            return prev;
-                        }
-                        const exists = prev.some(msg => msg.id === received.id);
-                        if (exists) {
-                            return prev.map((msg) => (msg.id === received.id ? received : msg));
-                        }
-
-                        // Only add messages with actual content
-                        if (received.content) {
-                            return [...prev, received];
-                        }
-
+                    if (received.type === 'ROOMDELETE' && originalId === received.roomId) {
+                        notification.success({ message: "THis Room Has Been Deleted By It's Creator." })
+                        navigate('/user/dashboard');
                         return prev;
+                    }
+                    if (received.type === 'LEAVE' && user?.id === received.userId) {
 
-                    });
+                        notification.success({ message: "You leave this room successfully." })
+                        navigate('/user/dashboard');
+                        return prev;
+                    }
+                    if (received.type === 'KICK' && user?.id === received.userId) {
+
+                        notification.error({ message: "You are no longer in this room, creator kicked you out." })
+                        navigate('/user/dashboard');
+                        return prev
+
+                    }
+                    if (received.type === 'KICK' && user?.id === received?.creatorId) {
+
+                        notification.success({ message: "Participent deleted successfully." })
+                        return prev
+
+                    }
+                    const exists = prev.some(msg => msg.id === received.id);
+                    if (exists) {
+                        return prev.map((msg) => (msg.id === received.id ? received : msg));
+                    }
+
+                    // Only add messages with actual content
+                    if (received.content) {
+                        return [...prev, received];
+                    }
+
+                    return prev;
+
                 });
-            };
-
-            client.activate();
-            setStompClient(client);
-
-            return () => client.deactivate();
+                // Handle Participants
+                setParticipants(prev => {
+                    if (received.type === 'JOIN' && received.user) {
+                        if (!prev.some(p => p.id === received.user.id)) {
+                            return [...prev, received.user];
+                        }
+                    } else if (received.type === 'LEAVE' || received.type === 'KICK') {
+                        return prev.filter(p => p.id !== received.userId);
+                    } else if (received.type === 'UPDATE' && received.user) {
+                        return prev.map(p => (p.id === received.user.id ? received.user : p));
+                    }
+                    return prev;
+                });
+            });
         };
 
-        initializeWebSocket();
+        client.activate();
+        setStompClient(client);
 
+        return () => client.deactivate();
+
+
+
+    }, [originalId, navigate, user?.id]);
+    useEffect(() => {
         const fetchInitialMessages = async () => {
             try {
                 const result = await dispatch(messagebyroomid(originalId))
                 setMessages(result?.payload?.body);
+                if (roomsbyroomid?.participants) {
+                    setParticipants(roomsbyroomid.participants);
+                }
                 await scrollToBottom();
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
         };
         fetchInitialMessages();
-    }, [dispatch, originalId, navigate, user?.id]);
+    }, [dispatch, originalId, roomsbyroomid]);
     const handleSendMessage = () => {
         if (!stompClient || !newMessage.trim()) return;
 
@@ -380,11 +403,11 @@ const Chat = () => {
         };
         fetchSinglePic()
         const fetchAvatars = async () => {
-            if (!roomsbyroomid || !Array.isArray(roomsbyroomid.participants)) return;
+            if (!participants || !Array.isArray(participants)) return;
             const avatarMap = { ...userAvatars };
 
 
-            for (const participant of roomsbyroomid?.participants) {
+            for (const participant of participants) {
                 if (!avatarMap[participant.id]) {
 
                     avatarMap[participant.id] = await fetchPic(participant?.id, participant?.gender);
@@ -534,7 +557,7 @@ const Chat = () => {
                     </Typography>
                     <Divider sx={{ my: 2 }} />
                     <List>
-                        {roomsbyroomid?.participants?.map((participant) => (
+                        {participants?.map((participant) => (
                             <ListItem key={participant.id} sx={{ display: 'flex', alignItems: 'center' }}>
                                 {
                                     roomsbyroomid?.creator?.id === user?.id &&
