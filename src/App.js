@@ -41,19 +41,29 @@ import Syllabus from './pages/Syllabus';
 import AssignmentUpload from './pages/AssignmentUpload';
 import InternetStatus from './components/InternetStatus'
 import Chat from './pages/Chat';
+import { Spin } from 'antd';
 
 
 
 
 // pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
 function App() {
-  
+  const { apploading } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // console.log('App: Dispatching setInitialLoginState');
     dispatch(setInitialLoginState());
   }, [dispatch]);
+
+ if (apploading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <>

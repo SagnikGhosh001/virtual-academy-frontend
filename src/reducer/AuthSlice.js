@@ -53,17 +53,17 @@ export const verifyotp = createAsyncThunk(
   }
 );
 
-export const register = createAsyncThunk(
-  'register/slice',
-  async (userInput) => {
-    try {
-      const response = await axiosInstance.post("/student/registerstudent", userInput);
-      return response?.data;
-    } catch (error) {
-      notification.error({ message: error.response.data.message })
-    }
-  }
-);
+// export const register = createAsyncThunk(
+//   'register/slice',
+//   async (userInput) => {
+//     try {
+//       const response = await axiosInstance.post("/student/registerstudent", userInput);
+//       return response?.data;
+//     } catch (error) {
+//       notification.error({ message: error.response.data.message })
+//     }
+//   }
+// );
 export const addadmin = createAsyncThunk(
   'addadmin/slice',
   async (userInput) => {
@@ -382,7 +382,7 @@ export const deleteStudent = createAsyncThunk(
   }
 );
 export const deleteAdmin = createAsyncThunk(
-  'deletestudentbyid/slice',
+  'deleteadminbyid/slice',
   async ({ id, userInput }) => {
     try {
       const response = await axiosInstance.delete(`/admin/deleteAdminbyId/${id}`, {
@@ -464,6 +464,7 @@ export const allteacher = createAsyncThunk(
 
 const initialState = {
   loading: false,
+  apploading: true,
   msg: '',
   error: '',
   islogin: false,
@@ -476,16 +477,16 @@ const AuthSlice = createSlice({
   name: 'authentication',
   initialState,
   reducers: {
-    setInitialLoginState: (state) => {
+    setInitialLoginState: (state) => { 
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
         state.islogin = true;
         const decompressedData = JSON.parse(LZString.decompress(localStorage.getItem("user")));
         state.user = decompressedData || [];
-      } else {
+      } else {        
         state.islogin = false;
       }
-      state.loading = false;
+      state.apploading = false;
     },
     logout: (state) => {
       state.islogin = false;
@@ -848,6 +849,28 @@ const AuthSlice = createSlice({
         // state.userlist=payload?.body
       })
       .addCase(deleteTeacherSemesterById.rejected, (state) => {
+        state.error = "something went wrong";
+        state.loading = false;
+      })
+      .addCase(deleteUserImage.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteUserImage.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        // state.userlist=payload?.body
+      })
+      .addCase(deleteUserImage.rejected, (state) => {
+        state.error = "something went wrong";
+        state.loading = false;
+      })
+      .addCase(deleteAdmin.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteAdmin.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        // state.userlist=payload?.body
+      })
+      .addCase(deleteAdmin.rejected, (state) => {
         state.error = "something went wrong";
         state.loading = false;
       })
