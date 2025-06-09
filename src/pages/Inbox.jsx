@@ -59,7 +59,7 @@ const Inbox = () => {
             const res = await dispatch(addInbox({ ...data, teacherId: userId }));
             if (res?.payload?.statusCodeValue === 200) {
                 reset();
-                message.success('Inbox added successfully!');
+                message.success('Message send successfully!');
             }
             if (userRole === 'student') {
                 await dispatch(getInboxByStudentid(userId))
@@ -75,7 +75,7 @@ const Inbox = () => {
             const payload = { currentId: userId }
             const res = await dispatch(isread({ id: feedbackid, userInput: payload }));
             if (res?.payload?.statusCodeValue === 200) {
-                message.success('Inbox readed successfully!');
+                message.success('Message readed successfully!');
                 if (userRole === 'student') {
 
                     await dispatch(getInboxByStudentid(userId))
@@ -84,7 +84,7 @@ const Inbox = () => {
                 }
             }
         } catch (error) {
-            message.error('Failed to add inbox.');
+            message.error('Failed to send message.');
         }
     };
 
@@ -93,7 +93,7 @@ const Inbox = () => {
             const payload = { ...data, teacherId: userId }
             const res = await dispatch(updateInbox({ id: selectedInbox.id, userInput: payload }));
             if (res?.payload?.statusCodeValue === 200) {
-                message.success('Inbox updated successfully!');
+                message.success('Message updated successfully!');
             }
             if (userRole === 'student') {
                 await dispatch(getInboxByStudentid(userId))
@@ -103,19 +103,19 @@ const Inbox = () => {
             setSelectedInbox(null);
             reset();
         } else {
-            message.warning('No inbox selected for update');
+            message.warning('Nothing selected for update');
         }
     };
 
     const handleDeleteInbox = async (feedbackid) => {
         Modal.confirm({
-            title: 'Are you sure you want to delete this inbox?',
+            title: 'Are you sure you want to delete this message?',
             onOk: async () => {
                 try {
                     const payload = { teacherId: userId }
                     const res = await dispatch(deleteInboxById({ id: feedbackid, userInput: payload }));
                     if (res?.payload?.statusCodeValue === 200) {
-                        message.success('Inbox deleted successfully!');
+                        message.success('Message deleted successfully!');
                     }
                     if (userRole === 'student') {
                         await dispatch(getInboxByStudentid(userId))
@@ -123,7 +123,7 @@ const Inbox = () => {
                         await dispatch(inboxByTeacherId(userId))
                     }
                 } catch (error) {
-                    notification.error({ message: 'Failed to delete feedback.' });
+                    notification.error({ message: 'Failed to delete message.' });
                 }
             },
         });
@@ -135,14 +135,14 @@ const Inbox = () => {
     };
 
     const teacherColumns = [
-        { field: 'id', headerName: 'ID', width: 100 },
+        { field: 'serialNo', headerName: 'ID', width: 100 ,renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1  },
         { field: 'studentName', headerName: 'Student Name', width: 250 },
         { field: 'studentEmail', headerName: 'Student Email', width: 250 },
         { field: 'studentReg', headerName: 'Student Reg', width: 250 },
         { field: 'studentSem', headerName: 'Student Sem', width: 250 },
         { field: 'studentDept', headerName: 'Student Department', width: 250 },
         { field: 'msg', headerName: 'Message', width: 400 },
-        { field: 'read', headerName: 'Status', width: 100, renderCell: (params) => (params.value ? 'Yes' : 'No') },
+        { field: 'read', headerName: 'Seen', width: 100, renderCell: (params) => (params.value ? 'Yes' : 'No') },
 
         {
             field: 'createdAt',
@@ -182,7 +182,7 @@ const Inbox = () => {
         );
     }
     const studentColumns = [
-        { field: 'id', headerName: 'ID', width: 100 },
+        { field: 'serialNo', headerName: 'ID', width: 100,renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1   },
         { field: 'teacherName', headerName: 'Teacher Name', width: 250 },
         { field: 'teacherDept', headerName: 'Teacher Department', width: 250 },
         { field: 'msg', headerName: 'Message', width: 400 },
@@ -202,7 +202,7 @@ const Inbox = () => {
         },
         {
             field: 'read',
-            headerName: 'Read',
+            headerName: 'Seen',
             width: 150,
             renderCell: (params) => (
                 <>
@@ -218,7 +218,7 @@ const Inbox = () => {
         },
     ];
     const adminColumns = [
-        { field: 'id', headerName: 'ID', width: 100 },
+        { field: 'serialNo', headerName: 'ID', width: 100 ,renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1  },
         { field: 'teacherName', headerName: 'Teacher Name', width: 250 },
         { field: 'teacherDept', headerName: 'Teacher Department', width: 250 },
         { field: 'studentName', headerName: 'Student Name', width: 250 },
@@ -226,7 +226,7 @@ const Inbox = () => {
         { field: 'studentReg', headerName: 'Student Reg', width: 250 },
         { field: 'studentSem', headerName: 'Student Sem', width: 250 },
         { field: 'studentDept', headerName: 'Student Department', width: 250 },
-        { field: 'read', headerName: 'Status', width: 100, renderCell: (params) => (params.value ? 'Yes' : 'No') },
+        { field: 'read', headerName: 'Seen', width: 100, renderCell: (params) => (params.value ? 'Yes' : 'No') },
         {
             field: 'createdAt',
             headerName: 'Created At',
@@ -305,7 +305,7 @@ const Inbox = () => {
                         </Grid>
                         <Box mt={2}>
                             <Button type="submit" variant="contained" color="primary">
-                                {selectedInbox ? 'Update Inbox' : 'Add Inbox'}
+                                {selectedInbox ? 'Update' : 'Send'}
                             </Button>
                             {selectedInbox && (
                                 <Button

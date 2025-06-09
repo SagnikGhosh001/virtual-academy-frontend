@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { adddept, deletedept, getAllDept, getAllDeptbysemid } from '../reducer/DeptSlice';
-import { Grid, Card, CardContent, Typography, CardActions, Button, Box, TextField, MenuItem, ListItemText, ListItem, ListItemIcon, Divider, List } from '@mui/material';
+import { Grid, Card, CardContent, Typography, CardActions, Button, Box, TextField, MenuItem, ListItemText, ListItem, ListItemIcon, Divider, List, Stack } from '@mui/material';
 import { Add, BusinessOutlined, Delete, Edit, School } from '@mui/icons-material';
 import { Modal, notification, Spin } from 'antd';
 import { addsem, deletesem, getAllSem, updateSem } from '../reducer/SemSlice';
@@ -9,8 +9,8 @@ import { useForm } from 'react-hook-form';
 
 const AllSem = () => {
   useEffect(() => {
-      document.title = "Virtual Academy | Semester";
-    }, []);
+    document.title = "Virtual Academy | Semester";
+  }, []);
   const { user } = useSelector((state) => state.auth);
   const { sem, loading } = useSelector((state) => state?.sems);
   const [semDepartments, setSemDepartments] = useState({});
@@ -91,11 +91,11 @@ const AllSem = () => {
         try {
           const userid = user?.id;
           const payload = { userid }
-          const res=await dispatch(deletesem({ id: id, userInput: payload }))
+          const res = await dispatch(deletesem({ id: id, userInput: payload }))
           if (res?.payload?.statusCodeValue === 200) {
             notification.success({ message: 'Semester deleted successfully!' });
           }
-        
+
           await dispatch(getAllSem());
         } catch (error) {
           notification.error({ message: 'Failed to delete semester.' });
@@ -113,23 +113,23 @@ const AllSem = () => {
   }
 
   return (
-    <Box sx={{ padding: '20px' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-
-        {
-          (user?.role === 'admin' || user?.role === 'pic') && (
-            <>
-              <Typography variant="h4" textAlign="center" gutterBottom>
-                Manage Semester
-              </Typography>
-              <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleOpenModal}>
-                Add Semester
-              </Button>
-            </>
-          ) 
-        }
-
-      </Box>
+    <Box sx={{ padding: '20px', paddingLeft: '45px' }}>
+      {(user?.role === 'admin' || user?.role === 'pic') && (
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'center', sm: 'center' }}
+          spacing={2}
+          sx={{ mb: 2 }}
+        >
+          <Typography variant="h4">
+            Manage Semester
+          </Typography>
+          <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleOpenModal}>
+            Add Semester
+          </Button>
+        </Stack>
+      )}
       <Typography variant="h4" textAlign="center" gutterBottom>
         Semesters
       </Typography>
@@ -139,7 +139,14 @@ const AllSem = () => {
       <Grid container spacing={10} sx={{ marginTop: '20px' }}>
         {sem?.body?.map((listsem, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card sx={{ maxWidth: 400, textAlign: 'center', boxShadow: 3 }}>
+            <Card sx={{
+              maxWidth: 400,
+              textAlign: 'center',
+              boxShadow: 3,
+              ':hover': {
+                boxShadow: 20,
+              },
+            }}>
               <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
                 <School style={{ fontSize: 60, color: '#1976d2' }} />
               </Box>
@@ -171,7 +178,7 @@ const AllSem = () => {
                   )}
                 </List>
               </CardContent>
-             
+
               <Modal
                 title="Edit Semester"
                 open={editModalOpen}

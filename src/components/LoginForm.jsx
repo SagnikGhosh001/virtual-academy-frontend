@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login, online } from "../reducer/AuthSlice";
-import {ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   Box,
@@ -22,8 +22,8 @@ import { notification } from "antd";
 
 function LoginForm() {
   useEffect(() => {
-      document.title = "Virtual Academy | Login";
-    }, []);
+    document.title = "Virtual Academy | Login";
+  }, []);
   const { islogin, loading } = useSelector((state) => state?.auth);
   const {
     handleSubmit,
@@ -33,17 +33,17 @@ function LoginForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
-const { user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   const onSubmit = (data) => {
 
 
     dispatch(login(data)).then((res) => {
       if (res?.payload?.statusCodeValue === 200) {
-          const id=res?.payload?.body?.user?.id
-          dispatch(online(id))
-        notification.success({message:"Login Successfull"})
-      } 
+        const id = res?.payload?.body?.user?.id
+        dispatch(online(id))
+        notification.success({ message: "Login Successfull" })
+      }
     });
   };
   useEffect(() => {
@@ -92,6 +92,11 @@ const { user } = useSelector((state) => state.auth);
 
             {/* Password Field */}
             <TextField
+              sx={{
+                '& input::-ms-reveal': {
+                  display: 'none',
+                },
+              }}
               fullWidth
               label="Password"
               type={showPassword ? "text" : "password"}
@@ -123,7 +128,7 @@ const { user } = useSelector((state) => state.auth);
 
                 <CircularProgress color="info" size="30px" />
               ) : (
-                'Submit'
+                'Log in'
               )}
             </Button>
 

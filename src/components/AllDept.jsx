@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Grid, Card, CardContent, Typography, CardActions, Button, Box, TextField, MenuItem, CircularProgress } from '@mui/material';
+import { Grid, Card, CardContent, Typography, CardActions, Button, Box, TextField, MenuItem, CircularProgress, Stack } from '@mui/material';
 import { Add, BusinessOutlined, Delete, Edit } from '@mui/icons-material';
 import { Collapse, Modal, notification, Select, Spin } from 'antd';
 import { getAllSem } from '../reducer/SemSlice';
@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 const AllDept = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Department";
-      }, []);
+    }, []);
     const { dept, loading } = useSelector((state) => state?.depts);
     const { user, islogin } = useSelector((state) => state.auth);
     const { sem } = useSelector((state) => state?.sems);
@@ -39,7 +39,7 @@ const AllDept = () => {
         dispatch(getAllSem());
     }, [dispatch]);
     const navigate = useNavigate()
-    const handleOpenModal = () => setIsModalOpen(true);
+
     const handleCloseModal = () => setIsModalOpen(false);
 
     const handleFormSubmit = async (data) => {
@@ -60,11 +60,9 @@ const AllDept = () => {
 
     const handleOpenEditModal = (dept) => {
         setSelectedDept(dept);
-        console.log(dept);
-
         setValue('deptname', dept.deptname || '');
         setValue('semId', dept?.semStaticId || '');
-        setAssociatedSemesters(dept.sem?.map(s => s.id) || []);  // Populate semester IDs
+        setAssociatedSemesters(dept.sem?.map(s => s.id) || []);
         setEditModalOpen(true);
     };
 
@@ -149,20 +147,33 @@ const AllDept = () => {
         );
     }
 
+    const handleAddDept = () => {
+        setIsModalOpen(true)
+        reset({
+            deptname: '',
+            semId: ''
+        })
+    }
     return (
-        <Box sx={{ padding: '20px' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ padding: '20px', paddingLeft: '45px' }}>
+            <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                justifyContent="space-between"
+                alignItems={{ xs: 'center', sm: 'center' }}
+                spacing={2}
+                sx={{ mb: 2 }}
+            >
                 {(user?.role === 'admin' || user?.role === 'pic') && (
                     <>
                         <Typography variant="h4" textAlign="center" gutterBottom>
                             Manage Departments
                         </Typography>
-                        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleOpenModal}>
+                        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleAddDept}>
                             Add Department
                         </Button>
                     </>
                 )}
-            </Box>
+            </Stack>
             <Typography variant="h4" textAlign="center" gutterBottom>
                 Departments
             </Typography>
@@ -172,7 +183,16 @@ const AllDept = () => {
             <Grid container spacing={10} sx={{ marginTop: '20px' }}>
                 {dept?.body?.map((listdept) => (
                     <Grid item xs={12} sm={6} md={4} key={listdept.id}>
-                        <Card sx={{ maxWidth: 400, textAlign: 'center', boxShadow: 3 }}>
+                        <Card sx={{
+                            maxWidth: 400,
+                            textAlign: 'center',
+                            boxShadow: 3,
+                            height: 300,
+                            ':hover': {
+                                boxShadow: 20,
+                            },
+
+                        }}>
                             <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
                                 <BusinessOutlined style={{ fontSize: 60, color: '#1976d2' }} />
                             </Box>
@@ -284,7 +304,7 @@ const AllDept = () => {
                 </TextField>
                 <form onSubmit={handleSubmit(handleSemesterDelete)}>
                     <Collapse style={{ marginBottom: '16px', marginTop: '16px' }}>
-                        <Collapse.Panel header="Delete Semester of This Department">
+                        <Collapse.Panel header="Delete Semester of This Department" >
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={6}>
                                     <TextField

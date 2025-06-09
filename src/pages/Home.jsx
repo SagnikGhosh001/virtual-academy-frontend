@@ -19,6 +19,54 @@ export default function Home() {
     document.title = "Virtual Academy | Home";
   }, []);
   const { islogin } = useSelector((state) => state.auth);
+  const features = [
+    {
+      title: "Syllabus Overview",
+      description:
+        "Quickly access and download subject-wise syllabus to stay aligned with the curriculum.",
+    },
+    {
+      title: "Seamless Attendance",
+      description:
+        "Easily track and manage student attendance with semester-wise and department-wise organization.",
+    },
+    {
+      title: "Assignment Management",
+      description:
+        "Upload, manage, and review assignments with a streamlined process.",
+    },
+    {
+      title: "Notes & Resources",
+      description:
+        "Access topic-wise notes and study materials, all uploaded by experienced teachers.",
+    },
+    {
+      title: "Marks Management",
+      description:
+        "Track and analyze students' academic performance with detailed marks records.",
+    },
+    {
+      title: "Feedback System",
+      description:
+        "Provide valuable feedback to enhance your learning experience and improve the platform.",
+    },
+    {
+      title: "Interactive Chat Rooms",
+      description:
+        "Create public or private chat rooms to collaborate, discuss, and connect with others in real time.",
+    },
+    {
+      title: "Admin Support System",
+      description:
+        "Reach out to the admin team for technical help, reporting issues, or general inquiries.",
+    },
+    {
+      title: "Secure Access",
+      description:
+        "Role-based access control, encrypted passwords, and OTP verification ensure data security.",
+    },
+  ];
+
   const navigate = useNavigate()
   return (
     <Box sx={{ fontFamily: "Roboto, sans-serif", textAlign: "center" }}>
@@ -31,7 +79,8 @@ export default function Home() {
       >
         <Box
           sx={{
-            background: "linear-gradient(135deg, #2196f3, #6ec1e4, #4fc3f7)",
+            // background: "linear-gradient(135deg, #2196f3, #6ec1e4, #4fc3f7)",
+            background: "linear-gradient(135deg, #1976d2, #42a5f5)",
             backgroundSize: "400% 400%",
             color: "white",
             py: 8,
@@ -91,43 +140,7 @@ export default function Home() {
           </Typography>
         </motion.div>
         <Grid container spacing={4}>
-          {[
-            {
-              title: "Seamless Attendance",
-              description:
-                "Easily track and manage student attendance with semester-wise and department-wise organization.",
-            },
-            {
-              title: "Assignment Management",
-              description:
-                "Upload, manage, and review assignments with a streamlined process.",
-            },
-            {
-              title: "Notes & Resources",
-              description:
-                "Access topic-wise notes and syllabi, all uploaded by experienced teachers.",
-            },
-            {
-              title: "Marks Management",
-              description:
-                "Track and analyze students' academic performance with detailed marks records.",
-            },
-            {
-              title: "Feedback System",
-              description:
-                "Provide valuable feedback to enhance your learning experience and improve the platform.",
-            },
-            {
-              title: "Interactive Chat Rooms",
-              description:
-                "Create public or private chat rooms to collaborate, discuss, and connect with others in real time.",
-            },
-            {
-              title: "Secure Access",
-              description:
-                "Role-based access control, encrypted passwords, and OTP verification ensure data security.",
-            },
-          ].map((feature, index) => (
+          {features.map((feature, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -166,6 +179,7 @@ export default function Home() {
               </motion.div>
             </Grid>
           ))}
+
         </Grid>
       </Container>
 
@@ -190,7 +204,7 @@ export default function Home() {
           </IconButton>
           <IconButton
             sx={{ color: "white", mx: 1 }}
-             href="mailto:sagnikghosh904@gmail.com"
+            href="mailto:sagnikghosh904@gmail.com"
             target="_blank"
           >
             <Email />

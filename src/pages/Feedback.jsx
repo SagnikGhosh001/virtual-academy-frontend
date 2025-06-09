@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Box, Typography, TextField, Button, Grid, IconButton, FormControlLabel, Switch } from '@mui/material';
+import { Box, Typography, TextField, Button, Grid, IconButton, FormControlLabel, Switch, Stack, Avatar } from '@mui/material';
 import { notification, Spin, Rate, Modal } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { addfedback, deleteFeedback, getallfeedback, updatefeedback } from '../reducer/FeedbackSlice';
@@ -8,7 +8,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DataGrid } from '@mui/x-data-grid';
 import { debounce, throttle } from 'lodash';
-
+import Lottie from 'lottie-react';
+import birdMailAnimation from '../asset/Animation - 1749019821225.json';
+import birdMessgaeAnimation from '../asset/Animation - 1749020458751.json';
 // Custom hook to handle resize observer
 const useResizeObserver = (callback) => {
     const observerRef = useRef(null);
@@ -39,7 +41,7 @@ const useResizeObserver = (callback) => {
 const Feedback = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Feedbacks";
-      }, []);
+    }, []);
     const { feedbacks, loading } = useSelector((state) => state?.feedbacks);
     const { user, islogin } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
@@ -117,39 +119,39 @@ const Feedback = () => {
         : (Array.isArray(feedbacks) ? feedbacks : []);
 
 
-    const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80, sortable: false },
-        { field: 'msg', headerName: 'Message', width: 400, sortable: true },
-        { field: 'rating', headerName: 'Rating', width: 200, renderCell: (params) => <Rate value={params.value} disabled /> },
-        { field: 'emailId', headerName: 'Email ID', width: 350, sortable: true },
-        { field: 'createdAt', headerName: 'Created At', sortable: true, width: 200 },
-        { field: 'updatedAt', headerName: 'Updated At', sortable: true, width: 200 },
+    // const columns = [
+    //     { field: 'serialNo', headerName: 'S.No.', width: 80, sortable: false, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
+    //     { field: 'msg', headerName: 'Message', width: 400, sortable: true },
+    //     { field: 'rating', headerName: 'Rating', width: 200, renderCell: (params) => <Rate value={params.value} disabled /> },
+    //     { field: 'emailId', headerName: 'Email ID', width: 350, sortable: true },
+    //     { field: 'createdAt', headerName: 'Created At', sortable: true, width: 200 },
+    //     { field: 'modifiedAt', headerName: 'Updated At', sortable: true, width: 200 },
 
-        {
-            field: 'action',
-            headerName: 'Action',
-            width: 150,
-            sortable: false,
-            renderCell: (params) => (
-                <div>
-                    {user?.email === params.row.emailId ? (
-                        <>
-                            <IconButton onClick={() => handleEditClick(params.row)}>
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton onClick={() => handleDeleteClick(params.row.id)} color="error">
-                                <DeleteIcon />
-                            </IconButton>
-                        </>
-                    ) : user?.role === 'admin' ? (
-                        <IconButton onClick={() => handleDeleteClick(params.row.id)} color="error">
-                            <DeleteIcon />
-                        </IconButton>
-                    ) : null}
-                </div>
-            ),
-        }
-    ];
+    //     {
+    //         field: 'action',
+    //         headerName: 'Action',
+    //         width: 150,
+    //         sortable: false,
+    //         renderCell: (params) => (
+    //             <div>
+    //                 {user?.email === params.row.emailId ? (
+    //                     <>
+    //                         <IconButton onClick={() => handleEditClick(params.row)}>
+    //                             <EditIcon />
+    //                         </IconButton>
+    //                         <IconButton onClick={() => handleDeleteClick(params.row.id)} color="error">
+    //                             <DeleteIcon />
+    //                         </IconButton>
+    //                     </>
+    //                 ) : user?.role === 'admin' ? (
+    //                     <IconButton onClick={() => handleDeleteClick(params.row.id)} color="error">
+    //                         <DeleteIcon />
+    //                     </IconButton>
+    //                 ) : null}
+    //             </div>
+    //         ),
+    //     }
+    // ];
 
     const handleEditClick = (record) => {
         setEditFeedbackId(record.id);
@@ -185,44 +187,135 @@ const Feedback = () => {
             </div>
         );
     }
-
+    const FeedbackBirdVisual = () => (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+            <Lottie animationData={birdMailAnimation} loop={true} style={{ width: 200, height: 200 }} />
+        </Box>
+    );
+    const FeedbackBirdMessage = () => (
+        <Box sx={{ display: 'flex', justifyContent: 'right' }}>
+            <Lottie animationData={birdMessgaeAnimation} loop={true} style={{ top: '40%', right: '0%', width: 200, height: 100 }} />
+        </Box>
+    );
     return (
         <Box sx={{ padding: '20px' }}>
-            <Typography variant="h4" textAlign="center" gutterBottom>
-                Feedback Page
-            </Typography>
+            <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                {/* Left spacer */}
+                <Grid item xs={false} sm={2} md={3} />
+                <Grid item xs={12} sm={8} md={6}>
+                    <Typography variant="h4" textAlign="center" gutterBottom >
+                        Feedbacks
+                    </Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    md={3}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'center', sm: 'flex-end' },
+                        mt: { sm: 0 }
+                    }}
+                >
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setIsModalOpen(true)}
+                        disabled={!islogin}
+
+                    >
+                        {islogin ? 'Add Feedback' : 'Login First'}
+
+                    </Button>
+                </Grid>
+            </Grid>
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View and share feedback about our platform.
             </Typography>
 
             <Box sx={{ marginTop: '30px' }}>
-                <FormControlLabel
-                    control={<Switch checked={showUserFeedbackFirst} onChange={() => setShowUserFeedbackFirst(!showUserFeedbackFirst)} />}
-                    label="Show my feedback first"
-                />
-                <div id="resize-observed-element" style={{ height: 400, width: '100%' }}>
-                    <DataGrid
-                        rows={sortedFeedbacks}
-                        columns={columns}
-                        pageSize={5}
-                        rowsPerPageOptions={[5, 10, 15]}
-                        pagination
-                        disableSelectionOnClick
-                        autoHeight
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <FormControlLabel
+                        control={<Switch checked={showUserFeedbackFirst} onChange={() => setShowUserFeedbackFirst(!showUserFeedbackFirst)} />}
+                        label="Show my feedback first"
                     />
-                </div>
+                    {sortedFeedbacks.length !== 0 && (
+                        <FeedbackBirdMessage />
+                    )}
+                </Box>
+
+
+                {sortedFeedbacks.length === 0 && (
+                    <>
+                        <Typography textAlign="center" variant="h6">No feedback yet!</Typography>
+                        <FeedbackBirdVisual />
+                    </>
+                )}
+
+                <Stack spacing={3} sx={{
+                    mt: 3,
+                    maxWidth: 700,
+                    mx: 'auto',
+
+                }} id="resize-observed-element">
+                    {sortedFeedbacks.map((feedback) => (
+
+                        <Box
+                            key={feedback.id}
+                            sx={{
+                                borderRadius: 2,
+                                padding: 3,
+                                boxShadow: 3,
+                                backgroundColor: 'white',
+                                width: '100%',
+                                ':hover': {
+                                    boxShadow: 10,
+                                    borderRadius: 2
+                                },
+                            }}
+                        >
+                            <Grid container spacing={2} alignItems="flex-start">
+                                <Grid item>
+                                    <Avatar sx={{ bgcolor: '#1976d2' }}>
+                                        {feedback.emailId?.[0]?.toUpperCase() || '?'}
+                                    </Avatar>
+                                </Grid>
+                                <Grid item xs>
+                                    <Typography variant="subtitle2" fontWeight="bold">
+                                        {feedback.emailId}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {new Date(feedback.createdAt).toLocaleString()}
+                                    </Typography>
+                                    <Box sx={{ mt: 1 }}>
+                                        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                            {feedback.msg}
+                                        </Typography>
+                                    </Box>
+                                    <Rate value={feedback.rating} disabled style={{ marginTop: 8 }} />
+                                </Grid>
+                                <Grid item>
+                                    {(user?.email === feedback.emailId || user?.role === 'admin') && (
+                                        <Stack direction="row" spacing={1}>
+                                            {user?.email === feedback.emailId && (
+                                                <IconButton size="small" onClick={() => handleEditClick(feedback)}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            )}
+                                            <IconButton size="small" color="error" onClick={() => handleDeleteClick(feedback.id)}>
+                                                <DeleteIcon fontSize="small" />
+                                            </IconButton>
+                                        </Stack>
+                                    )}
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    ))}
+                </Stack>
+
             </Box>
 
-            <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setIsModalOpen(true)}
-                    disabled={!islogin}
-                >
-                    {islogin ? 'Add Feedback' : 'Login First'}
-                </Button>
-            </Grid>
 
             <Modal
                 title={editFeedbackId ? 'Edit Feedback' : 'Add Feedback'}

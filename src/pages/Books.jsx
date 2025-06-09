@@ -163,7 +163,7 @@ const Books = () => {
         setSelectedSubId(event.target.value);
     };
     const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80, hide: true },
+        { field: 'serialNo', headerName: 'S.No.', width: 80, hide: true, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
         { field: 'name', headerName: 'Name', width: 200 },
         {
             field: 'link', headerName: 'Link', width: 200,
@@ -257,13 +257,45 @@ const Books = () => {
     }
     return (
         <Box sx={{ padding: '20px' }}>
-            <Typography variant="h4" textAlign="center" gutterBottom>
-                Books Page
-            </Typography>
+            <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                {/* Left spacer */}
+                <Grid item xs={false} sm={2} md={3} />
+                <Grid item xs={12} sm={8} md={6}>
+                    <Typography variant="h4" textAlign="center" gutterBottom >
+                        Books
+                    </Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    md={3}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'center', sm: 'flex-end' },
+                        mt: { sm: 0 }
+                    }}
+                >
+                    {
+                        (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
+                            <>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => setIsModalOpen(true)}
+                                   
+                                >
+                                    Add Books
+                                </Button>
+                            </>
+                        ) : ''
+                    }
+                </Grid>
+            </Grid>
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View our uploaded books.
             </Typography>
-            
+
             <Box sx={{ marginTop: '30px' }}>
                 <Box sx={{ height: 600, marginTop: '20px' }}>
                     <DataGrid
@@ -276,22 +308,6 @@ const Books = () => {
                     />
                 </Box>
             </Box>
-            <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-                {
-                    (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
-                        <>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => setIsModalOpen(true)}
-                            >
-                                Add Books
-                            </Button>
-                        </>
-                    ) : ''
-                }
-
-            </Grid>
             <Modal
                 title={editNotesId ? 'Edit Books Details' : 'Add New Books'}
                 open={isEditModalOpen || isModalOpen}
@@ -329,7 +345,7 @@ const Books = () => {
                                 />
                             </Grid>
 
-                            
+
                             {
                                 (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
                                     <>

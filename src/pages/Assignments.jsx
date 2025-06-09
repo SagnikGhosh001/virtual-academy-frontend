@@ -32,8 +32,8 @@ import { addassignment, assignmentbysubid, deleteassignmentbyId, downloadPdf, up
 import { useNavigate } from 'react-router-dom';
 const Assignments = () => {
   useEffect(() => {
-      document.title = "Virtual Academy | Assignments";
-    }, []);
+    document.title = "Virtual Academy | Assignments";
+  }, []);
   const { user } = useSelector((state) => state.auth);
   // const { notes, subnotes, loading } = useSelector((state) => state.notes);
   const { assignments, subassignments, loading } = useSelector((state) => state.assignment);
@@ -123,7 +123,10 @@ const Assignments = () => {
     }
   };
 
-
+const handleDownload=(event,id)=>{
+  event.stopPropagation()
+  dispatch(downloadPdf(id))
+}
   const handleDeleteClick = (event, id) => {
     event.stopPropagation();
     Modal.confirm({
@@ -166,24 +169,24 @@ const Assignments = () => {
     setSelectedSubId(event.target.value);
   };
   const columns = [
-    { field: 'id', headerName: 'S.No.', width: 80, hide: true },
+    { field: 'serialNo', headerName: 'S.No.', width: 80, hide: true, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
     { field: 'name', headerName: 'Name', width: 200 },
     {
       field: 'link', headerName: 'Link', width: 200,
       renderCell: (params) => (
-        params.value?
-        <a
-          href={params.value}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
-        >
-          Open Link
-        </a> : 'Not Provided'
+        params.value ?
+          <a
+            href={params.value}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 'bold' }}
+          >
+            Open Link
+          </a> : 'Not Provided'
       )
     },
     { field: 'teachername', headerName: 'Teachername', width: 200 },
-    { field: 'description', headerName: 'Description', width: 200,renderCell: (params) => (params.value ? params.value : 'Not Given') },
+    { field: 'description', headerName: 'Description', width: 200, renderCell: (params) => (params.value ? params.value : 'Not Given') },
     {
       field: 'submissionDate',
       headerName: 'Submission Date',
@@ -199,7 +202,7 @@ const Assignments = () => {
           {(user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ?
             (<IconButton>
               <label htmlFor={`upload-pdf-${params.row.id}`} onClick={(e) => e.stopPropagation()}>
-              < InboxOutlined style={{ cursor: 'pointer' }} />
+                < InboxOutlined style={{ cursor: 'pointer' }} />
                 <input
                   type="file"
                   accept=".pdf"
@@ -208,7 +211,7 @@ const Assignments = () => {
                   id={`upload-pdf-${params.row.id}`}
                 />
 
-                
+
               </label>
 
             </IconButton>) : null
@@ -246,7 +249,7 @@ const Assignments = () => {
               </IconButton>
               {params.row?.pdf ?
                 < IconButton >
-                  <DownloadIcon onClick={() => dispatch(downloadPdf(params.row.id))} />
+                  <DownloadIcon onClick={(event) => handleDownload(event,params.row.id)} />
                 </IconButton> : ''}
               <IconButton onClick={(event) => handleDeleteClick(event, params.row.id)} color="error">
                 <DeleteIcon />
@@ -254,7 +257,7 @@ const Assignments = () => {
             </>
           ) : (
             < IconButton >
-              <DownloadIcon onClick={() => dispatch(downloadPdf(params.row.id))} />
+              <DownloadIcon onClick={(event) => handleDownload(event,params.row.id)} />
             </IconButton>
           )}
         </div >
@@ -271,11 +274,44 @@ const Assignments = () => {
   }
   return (
     <Box sx={{ padding: '20px' }}>
-      <Typography variant="h4" textAlign="center" gutterBottom>
-        Assignment Page
-      </Typography>
+      <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+        {/* Left spacer */}
+        <Grid item xs={false} sm={2} md={3} />
+        <Grid item xs={12} sm={8} md={6}>
+          <Typography variant="h4" textAlign="center" gutterBottom >
+            Assignments
+          </Typography>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          sm={2}
+          md={3}
+          sx={{
+            display: 'flex',
+            justifyContent: { xs: 'center', sm: 'flex-end' },
+            mt: { sm: 0 }
+          }}
+        >
+          {
+            (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
+              <>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setIsModalOpen(true)}
+                  
+                >
+                  Add Assignment
+                </Button>
+              </>
+            ) : ''
+          }
+        </Grid>
+
+      </Grid>
       <Typography variant="subtitle1" textAlign="center" gutterBottom>
-        View our uploaded Assignment.
+        View all Assignment.
       </Typography>
       {/* {
                 <Grid container spacing={2} sx={{ marginBottom: 2 }}>
@@ -367,22 +403,7 @@ const Assignments = () => {
           />
         </Box>
       </Box>
-      <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-        {
-          (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
-            <>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setIsModalOpen(true)}
-              >
-                Add Assignment
-              </Button>
-            </>
-          ) : ''
-        }
 
-      </Grid>
       <Modal
         title={editNotesId ? 'Edit Assignment Details' : 'Add New Assignment'}
         open={isEditModalOpen || isModalOpen}
@@ -488,7 +509,7 @@ const Assignments = () => {
           </form>
         </Box>
       </Modal>
-    </Box>
+    </Box >
   );
 };
 

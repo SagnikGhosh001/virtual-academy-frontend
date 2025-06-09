@@ -36,7 +36,7 @@ function ContactUs() {
       {/* Header Section */}
       <Box
         sx={{
-          background: "linear-gradient(135deg,rgb(86, 128, 206),rgb(87, 128, 199))",
+          background: "linear-gradient(135deg, #1976d2, #42a5f5)",
           color: "white",
           py: { xs: 4, md: 6 }, // Responsive padding
           px: { xs: 2, md: 3 },

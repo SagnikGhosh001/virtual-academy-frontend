@@ -23,7 +23,7 @@ export default function About() {
       {/* Header Section */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #673ab7, #9575cd)",
+          background: "linear-gradient(135deg, #1976d2, #42a5f5)",
           color: "white",
           py: 8,
           px: 2,

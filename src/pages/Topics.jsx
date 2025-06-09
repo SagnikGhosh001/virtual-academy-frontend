@@ -164,7 +164,7 @@ const Topics = () => {
         setSelectedSubId(event.target.value);
     };
     const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80, hide: true },
+        { field: 'serialNo', headerName: 'S.No.', width: 80, hide: true, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
         { field: 'name', headerName: 'Name', width: 200 },
         {
             field: 'link', headerName: 'Link', width: 200,
@@ -258,9 +258,41 @@ const Topics = () => {
     }
     return (
         <Box sx={{ padding: '20px' }}>
-            <Typography variant="h4" textAlign="center" gutterBottom>
-                Topic Wise Notes Page
-            </Typography>
+            <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                {/* Left spacer */}
+                <Grid item xs={false} sm={2} md={3} />
+                <Grid item xs={12} sm={8} md={6}>
+                    <Typography variant="h4" textAlign="center" gutterBottom>
+                        Topic Wise Notes
+                    </Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    md={3}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'center', sm: 'flex-end' },
+                        mt: { xs: 0, sm: 0, }
+                    }}
+                >
+                    {
+                        (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
+                            <>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => setIsModalOpen(true)}
+
+                                >
+                                    Add Note
+                                </Button>
+                            </>
+                        ) : ''
+                    }
+                </Grid>
+            </Grid>
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View our uploaded Topic Wise Notes.
             </Typography>
@@ -325,22 +357,7 @@ const Topics = () => {
                     />
                 </Box>
             </Box>
-            <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-                {
-                    (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
-                        <>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => setIsModalOpen(true)}
-                            >
-                                Add Topics
-                            </Button>
-                        </>
-                    ) : ''
-                }
 
-            </Grid>
             <Modal
                 title={editNotesId ? 'Edit Topic Wise Note Details' : 'Add New Topic Wise Note'}
                 open={isEditModalOpen || isModalOpen}
@@ -413,7 +430,7 @@ const Topics = () => {
                                                 fullWidth
                                                 sx={{ height: '50px' }}
                                             >
-                                                {submitLoading ? <CircularProgress color="inherit" size="30px" /> : editNotesId ? 'Update Topics' : 'Add Topics'}
+                                                {submitLoading ? <CircularProgress color="inherit" size="30px" /> : editNotesId ? 'Update Note' : 'Add Note'}
                                             </Button>
                                         </Grid>
                                     </>

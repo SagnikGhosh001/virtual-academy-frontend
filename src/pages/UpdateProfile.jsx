@@ -68,8 +68,8 @@ function UpdateProfile() {
   useEffect(() => {
 
     if (user) {
-      setValue('name', user.name); // Set the name field with user data
-      setValue('gender', user.gender); // Set the gender field with user data
+      setValue('name', user.name); 
+      setValue('gender', user.gender);
     }
   }, [user, setValue]);
   return (

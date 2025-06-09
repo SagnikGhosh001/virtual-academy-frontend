@@ -19,16 +19,16 @@ import { getAllDept } from "../reducer/DeptSlice";
 import { getAllSem } from "../reducer/SemSlice";
 import { Visibility, VisibilityOff } from "@mui/icons-material"; // For eye icon
 import { toast, ToastContainer } from "react-toastify";
-import {  registerstudent } from "../reducer/AuthSlice";
+import { registerstudent } from "../reducer/AuthSlice";
 import { message, notification } from "antd";
 
 function RegistrationForm() {
     useEffect(() => {
         document.title = "Virtual Academy | Registration";
-      }, []);
+    }, []);
     const { dept } = useSelector((state) => state?.depts);
     const { sem } = useSelector((state) => state?.sems);
-    const[loading,setLoading]=useState(false)
+    const [loading, setLoading] = useState(false)
     const dispatch = useDispatch();
     const {
         register,
@@ -37,28 +37,28 @@ function RegistrationForm() {
     } = useForm();
     const navigate = useNavigate();
 
-    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleClickShowPassword = () => setShowPassword((prev) => !prev); // Toggle the password visibility
-    const handleMouseDownPassword = (event) => event.preventDefault(); // Prevent the mouse down event
+    const handleClickShowPassword = () => setShowPassword((prev) => !prev);
+    const handleMouseDownPassword = (event) => event.preventDefault();
 
     const registerUser = async (data) => {
         try {
             setLoading(true)
-            const res=await dispatch(registerstudent(data))
+            const res = await dispatch(registerstudent(data))
 
-            
+
             if (res?.payload?.statusCodeValue === 200) {
-                notification.success({message:"Registration Successfull"})
+                notification.success({ message: "Registration Successfull" })
                 navigate("/verifyaccount");
                 setLoading(false)
-            }else{
+            } else {
                 setLoading(false)
             }
         } catch (error) {
-            
+
             setLoading(false)
-            
+
         }
     };
 
@@ -133,9 +133,14 @@ function RegistrationForm() {
                         {/* Password */}
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                sx={{
+                                    '& input::-ms-reveal': {
+                                        display: 'none',
+                                    },
+                                }}
                                 fullWidth
                                 label="Password"
-                                type={showPassword ? "text" : "password"} // Toggle between text and password type
+                                type={showPassword ? "text" : "password"}
                                 variant="outlined"
                                 {...register("password", { required: true })}
                                 error={!!errors.password}
@@ -148,6 +153,7 @@ function RegistrationForm() {
                                                 onClick={handleClickShowPassword}
                                                 onMouseDown={handleMouseDownPassword}
                                                 edge="end"
+
                                             >
                                                 {showPassword ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
@@ -176,7 +182,7 @@ function RegistrationForm() {
                                 defaultValue=""
                                 displayEmpty
                                 {...register("deptId", { required: true })}
-                                error={!!errors.dept}
+                                error={!!errors.deptId}
                             >
                                 <MenuItem value="" disabled>
                                     Select Department
@@ -187,7 +193,7 @@ function RegistrationForm() {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {errors.dept && (
+                            {errors.deptId && (
                                 <Typography color="error" variant="caption">
                                     Department is required.
                                 </Typography>
@@ -201,7 +207,7 @@ function RegistrationForm() {
                                 defaultValue=""
                                 displayEmpty
                                 {...register("semId", { required: true })}
-                                error={!!errors.sem}
+                                error={!!errors.semId}
                             >
                                 <MenuItem value="" disabled>
                                     Select Semester
@@ -212,7 +218,7 @@ function RegistrationForm() {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {errors.sem && (
+                            {errors.semId && (
                                 <Typography color="error" variant="caption">
                                     Semester is required.
                                 </Typography>
@@ -231,14 +237,21 @@ function RegistrationForm() {
                                 {loading ? (
                                     <CircularProgress color="info" size="30px" />
                                 ) : (
-                                    'Sign Up'
+                                    'Register'
                                 )}
                             </Button>
                         </Grid>
                     </Grid>
                 </Box>
-                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                <Typography variant="body2" align="center" sx={{ mt: 2, mb:2 }}>
                     For email verification, <Link to={"/verifyaccount"}>click here</Link>.
+                </Typography>
+
+                <Typography variant="body2" align="center">
+                    Already have an account?{" "}
+                    <Link to={"/login"} style={{ color: "#1976d2" }}>
+                        Log in
+                    </Link>
                 </Typography>
             </Container>
         </>

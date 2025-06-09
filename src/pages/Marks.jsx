@@ -30,8 +30,8 @@ import { addmarks, deletemarks, getallMarks, updatemarks } from '../reducer/Mark
 
 const Marks = () => {
   useEffect(() => {
-      document.title = "Virtual Academy | Marks";
-    }, []);
+    document.title = "Virtual Academy | Marks";
+  }, []);
   const { user, userlist } = useSelector((state) => state.auth);
   const { marks, loading } = useSelector((state) => state.mark);
   const dispatch = useDispatch();
@@ -114,7 +114,7 @@ const Marks = () => {
 
   const handleDeleteClick = (id) => {
     Modal.confirm({
-      title: 'Are you sure you want to delete this marks?',
+      title: 'Are you sure you want to delete this student marks?',
       onOk: async () => {
         try {
           const teacher = user?.id
@@ -133,7 +133,7 @@ const Marks = () => {
 
 
   const columns = [
-    { field: 'id', headerName: 'S.No.', width: 80, hide: true },
+    { field: 'serialNo', headerName: 'S.No.', width: 80, hide: true, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
     { field: 'email', headerName: 'Email ID', width: 250 },
     { field: 'semname', headerName: 'Semester', width: 150 },
     { field: 'deptName', headerName: 'Department', width: 200 },
@@ -181,15 +181,56 @@ const Marks = () => {
     );
   }
 
+  const handleAddmark = () => {
+    setIsModalOpen(true)
+    setEditStudentId(null)
+    setIsEditModalOpen(false)
+    reset({
+      subId: '',
+      studentId: '',
+      mark: ''
+    })
+  }
   return (
     <Box sx={{ padding: '20px' }}>
-      <Typography variant="h4" textAlign="center" gutterBottom>
-        Marks Page
+      <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+        {/* Left spacer */}
+        <Grid item xs={false} sm={2} md={3} />
+        <Grid item xs={12} sm={8} md={6}>
+          <Typography variant="h4" textAlign="center" gutterBottom >
+            Marks
+          </Typography>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          sm={2}
+          md={3}
+          sx={{
+            display: 'flex',
+            justifyContent: { xs: 'center', sm: 'flex-end' },
+            mt: {xs:0, sm: 0, }
+          }}
+        >
+          {
+            (user?.role === "teacher" || user?.role === "hod" || user?.role === "pic") ? (
+              <>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddmark}
+                  
+                >
+                  Add Maks
+                </Button>
+              </>
+            ) : ''
+          }
+        </Grid>
+      </Grid>
+      <Typography variant="subtitle1" textAlign="center" gutterBottom >
+        Marks of all student.
       </Typography>
-      <Typography variant="subtitle1" textAlign="center" gutterBottom>
-        View Marks.
-      </Typography>
-
       {/* Search Bar */}
       <TextField
         fullWidth
@@ -222,22 +263,7 @@ const Marks = () => {
             autoHeight
           />
         </Box>
-        <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-          {
-            (user?.role === "teacher" || user?.role === "hod" || user?.role === "pic") ? (
-              <>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Add Maks
-                </Button>
-              </>
-            ) : ''
-          }
 
-        </Grid>
       </Box>
 
       <Modal

@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import { notification, Modal, Spin, Collapse } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-
+import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -202,7 +202,7 @@ const TotalTeachers = () => {
         : userlist || [];
 
     const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80 },
+        { field: 'serialNo', headerName: 'S.No.', width: 80,renderCell: (params) => params.api.getAllRowIds().indexOf(params.id)+1 },
         {
             field: 'profilePic',
             headerName: 'Profile Picture',
@@ -247,8 +247,14 @@ const TotalTeachers = () => {
                     : 'Not Assigned';
             },
         },
-        { field: 'createdAt', headerName: 'Created At', sortable: true, },
-        { field: 'modifiedAt', headerName: 'Updated At', sortable: true },
+        { field: 'createdAt', headerName: 'Created At', sortable: true,
+            renderCell: (params) =>
+        dayjs(params.value).isValid() ? dayjs(params.value).format('DD/MM/YYYY HH:mm') : 'N/A',
+         },
+        { field: 'modifiedAt', headerName: 'Updated At', sortable: true ,
+            renderCell: (params) =>
+        dayjs(params.value).isValid() ? dayjs(params.value).format('DD/MM/YYYY HH:mm') : 'N/A',
+        },
         {
             field: 'action',
             headerName: 'Action',
@@ -316,7 +322,7 @@ const TotalTeachers = () => {
     return (
         <Box sx={{ padding: '20px' }}>
             <Typography variant="h4" textAlign="center" gutterBottom>
-                Teachers Page
+                Teachers
             </Typography>
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View our teachers.

@@ -161,8 +161,15 @@ const Syllabus = () => {
     const handleSubChange = (event) => {
         setSelectedSubId(event.target.value);
     };
+    const handleAddSyllabus = () => {
+        setIsModalOpen(true)
+        setIsEditModalOpen(false)
+        reset({
+            semId: ''
+        })
+    }
     const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80, hide: true },
+        { field: 'serialNo', headerName: 'S.No.', width: 80, hide: true, width: 80, sortable: false, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
         { field: 'name', headerName: 'Name', width: 200 },
         {
             field: 'link', headerName: 'Link', width: 200,
@@ -257,11 +264,43 @@ const Syllabus = () => {
     }
     return (
         <Box sx={{ padding: '20px' }}>
-            <Typography variant="h4" textAlign="center" gutterBottom>
-                Syllabus Page
-            </Typography>
+            <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                {/* Left spacer */}
+                <Grid item xs={false} sm={2} md={3} />
+                <Grid item xs={12} sm={8} md={6}>
+                    <Typography variant="h4" textAlign="center" gutterBottom >
+                        Syllabus
+                    </Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    md={3}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'center', sm: 'flex-end' },
+                        mt: { xs: 0, sm: 0, }
+                    }}
+                >
+                    {
+                        (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
+                            <>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleAddSyllabus}
+
+                                >
+                                    Add Syllabus
+                                </Button>
+                            </>
+                        ) : ''
+                    }
+                </Grid>
+            </Grid>
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
-                View our uploaded Syllabus.
+                View all uploaded Syllabus.
             </Typography>
             {/* {
                 <Grid container spacing={2} sx={{ marginBottom: 2 }}>
@@ -324,22 +363,7 @@ const Syllabus = () => {
                     />
                 </Box>
             </Box>
-            <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-                {
-                    (user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic') ? (
-                        <>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => setIsModalOpen(true)}
-                            >
-                                Add Syllabus
-                            </Button>
-                        </>
-                    ) : ''
-                }
 
-            </Grid>
             <Modal
                 title={editNotesId ? 'Edit Syllabus Details' : 'Add New Sullabus'}
                 open={isEditModalOpen || isModalOpen}

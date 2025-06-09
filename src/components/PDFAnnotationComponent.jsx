@@ -197,14 +197,14 @@ const PDFAnnotationComponent = ({ pdfData, onSave }) => {
   const onLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
     setCanvasRefs(new Array(numPages).fill().map(() => React.createRef()));
-    setDrawnPaths(new Array(numPages).fill([])); // Initialize an empty array for each page
+    setDrawnPaths(new Array(numPages).fill([]));
     pageRefs.current = new Array(numPages);
 
   };
 
   const handlePageLoadSuccess = (index, { originalWidth, originalHeight }) => {
     pageDimensions.current[index] = { width: originalWidth, height: originalHeight };
-    adjustCanvasSize(index); // Adjust canvas size when the page loads
+    adjustCanvasSize(index);
   };
   useEffect(() => {
     canvasRefs.forEach((_, index) => adjustCanvasSize(index));

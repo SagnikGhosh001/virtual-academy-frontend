@@ -14,6 +14,7 @@ import { getAllDept } from '../reducer/DeptSlice';
 import { allteacher } from '../reducer/AuthSlice';
 import { useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
+import dayjs from 'dayjs';
 
 // Custom hook to handle resize observer
 const useResizeObserver = (callback) => {
@@ -45,7 +46,7 @@ const useResizeObserver = (callback) => {
 const Subject = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Subjects";
-      }, []);
+    }, []);
     const navigate = useNavigate()
     const { subs, loading } = useSelector((state) => state?.subs);
     const { user, userlist, islogin } = useSelector((state) => state.auth);
@@ -104,7 +105,7 @@ const Subject = () => {
                 const res = await dispatch(addsub(payload))
                 if (res?.payload?.statusCodeValue === 201) {
 
-                    notification.success({ message: 'Subject submitted successfully!' });
+                    notification.success({ message: 'Subject added successfully!' });
                 }
             }
 
@@ -114,7 +115,7 @@ const Subject = () => {
 
             await dispatch(getAllSub());
         } catch (error) {
-            notification.error({ message: 'Failed to submit subject. Try again.' });
+            notification.error({ message: 'Failed to add subject. Try again.' });
         } finally {
             setSubmitLoading(false);
         }
@@ -142,13 +143,20 @@ const Subject = () => {
         setSelectedSemId(event.target.value);
     };
     const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80, sortable: false },
+        { field: 'serialNo', headerName: 'S.No.', width: 80, sortable: false, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
         { field: 'subname', headerName: 'Subject', width: 200, sortable: true },
         { field: 'deptname', headerName: 'Department', width: 300, sortable: true },
         { field: 'semname', headerName: 'Semester', width: 250, sortable: true },
-        { field: 'teachername', headerName: 'Teacher', width: 250, sortable: true,renderCell: (params) => (params.value ? params.value : 'Not Assigned') },
-        { field: 'createdat', headerName: 'Created At', sortable: true, width: 200 },
-        { field: 'modifiedat', headerName: 'Updated At', sortable: true, width: 200 },
+        { field: 'teachername', headerName: 'Teacher', width: 250, sortable: true, renderCell: (params) => (params.value ? params.value : 'Not Assigned') },
+        { field: 'createdat', headerName: 'Created At', sortable: true, width: 200,
+            renderCell: (params) =>
+                    dayjs(params.value).isValid() ? dayjs(params.value).format('DD/MM/YYYY HH:mm') : 'N/A',
+         },
+
+        { field: 'modifiedat', headerName: 'Updated At', sortable: true, width: 200 ,
+            renderCell: (params) =>
+                    dayjs(params.value).isValid() ? dayjs(params.value).format('DD/MM/YYYY HH:mm') : 'N/A',
+        },
 
         {
             field: 'action',
@@ -212,15 +220,55 @@ const Subject = () => {
             </div>
         );
     }
-
+    const handleAddClick = () => {
+        setIsModalOpen(true);
+        setIsEditModalOpen(false);
+        setEditSubId(null);
+        reset({
+            subname: '',
+            teacherChange: '',
+            deptId: '',
+            semId: '',
+        });
+    };
     return (
         <Box sx={{ padding: '20px' }}>
-            <Typography variant="h4" textAlign="center" gutterBottom>
-                Subject Page
-            </Typography>
-            <Typography variant="subtitle1" textAlign="center" gutterBottom>
-                Subject.
-            </Typography>
+            <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                {/* Left spacer */}
+                <Grid item xs={false} sm={2} md={3} />
+                <Grid item xs={12} sm={8} md={6}>
+                    <Typography
+                        variant="h4"
+                        textAlign="center" gutterBottom
+                    >
+                        Subjects
+                    </Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    md={3}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'center', sm: 'flex-end' },
+                        mt: { xs: 0, sm: 0, }
+                    }}
+                >
+                    {(user?.role === 'hod' || user?.role === 'pic') && (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleAddClick}
+                            disabled={!islogin}
+
+                        >
+                            {islogin ? 'Add Subject' : 'Login First'}
+                        </Button>
+
+                    )}
+                </Grid>
+            </Grid>
             {(user?.role === 'admin' || user?.role === 'teacher' || user?.role === 'hod' || user?.role === 'pic')
                 && < Grid container spacing={2} sx={{ marginBottom: 2 }}>
                     <Grid item xs={12} sm={6}>
@@ -252,6 +300,7 @@ const Subject = () => {
                             </Select>
                         </FormControl>
                     </Grid>
+
                 </Grid>}
             <Box sx={{ marginTop: '30px' }}>
                 <div id="resize-observed-element" style={{ height: 400, width: '100%' }}>
@@ -333,20 +382,7 @@ const Subject = () => {
                     />
                 </div>
             </Box>
-            {(user?.role === "hod" || user?.role === "pic")
-                &&
-                <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => setIsModalOpen(true)}
-                        disabled={!islogin}
-                    >
-                        {islogin ? 'Add Subject' : 'Login First'}
-                    </Button>
-                </Grid>
 
-            }
 
             <Modal
                 title={editSubId ? 'Edit Subject' : 'Add Subject'}
@@ -370,7 +406,7 @@ const Subject = () => {
                                     fullWidth
                                     label="Subject Name"
                                     variant="outlined"
-
+                                    required
                                     {...register('subname', { required: 'Subject name is required.' })}
                                     error={!!errors.subname}
                                     helperText={errors.subname?.message}
@@ -378,14 +414,13 @@ const Subject = () => {
                             </Grid>
 
                             {/* Teacher */}
-                            {/* Teacher */}
                             {editSubId && (
                                 <Grid item xs={12} sm={6}>
                                     <Select
                                         fullWidth
                                         // defaultValue="" 
                                         displayEmpty
-                                        value={watch('teacherChange')||''}
+                                        value={watch('teacherChange') || ''}
                                         {...register('teacherChange', { required: 'Please select a teacher.' })}
                                         // defaultValue=""
                                         error={!!errors.teacherChange}
@@ -407,15 +442,43 @@ const Subject = () => {
                                 </Grid>
                             )}
 
+
+                            {/* Semester */}
+                            <Grid item xs={12} sm={6}>
+                                <Select
+                                    fullWidth
+                                    displayEmpty
+                                    value={watch('semId') || ''}
+                                    disabled={editSubId}
+                                    {...register('semId', {
+                                        required: editSubId ? false : "Please Select a Semester",
+                                    })}
+                                    error={!!errors.semId}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Select Semester
+                                    </MenuItem>
+                                    {sem?.body?.map((semester) => (
+                                        <MenuItem key={semester.id} value={semester.id}>
+                                            {semester.semname}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.semId && (
+                                    <Typography color="error" variant="caption">
+                                        {errors.semId.message}
+                                    </Typography>
+                                )}
+                            </Grid>
                             {/* Department */}
                             <Grid item xs={12} sm={6}>
                                 <Select
                                     fullWidth
                                     displayEmpty
-                                    defaultValue=""
+                                    value={watch('deptId') || ''}
                                     disabled={editSubId}
                                     {...register('deptId', {
-                                        required: editSubId ? false : 'Please select a department.',
+                                        required: editSubId ? false : "Please select a department",
                                     })}
                                     error={!!errors.deptId}
                                 >
@@ -435,33 +498,6 @@ const Subject = () => {
                                 )}
                             </Grid>
 
-                            {/* Semester */}
-                            <Grid item xs={12} sm={6}>
-                                <Select
-                                    fullWidth
-                                    displayEmpty
-                                    defaultValue=""
-                                    disabled={editSubId}
-                                    {...register('semId', {
-                                        required: editSubId ? false : 'Please select a semester.',
-                                    })}
-                                    error={!!errors.semId}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Select Semester
-                                    </MenuItem>
-                                    {sem?.body?.map((semester) => (
-                                        <MenuItem key={semester.id} value={semester.id}>
-                                            {semester.semname}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {errors.semId && (
-                                    <Typography color="error" variant="caption">
-                                        {errors.semId.message}
-                                    </Typography>
-                                )}
-                            </Grid>
                         </Grid>
 
                         {/* Submit Button */}

@@ -29,6 +29,7 @@
     "file-loader": "^6.2.0",
     "framer-motion": "^12.0.5",
     "html-docx-js": "^0.3.1",
+    "lottie-react": "^2.4.1",
     "lz-string": "^1.5.0",
     "moment": "^2.30.1",
     "pdf-lib": "^1.17.1",

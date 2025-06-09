@@ -137,7 +137,7 @@ const Profile = () => {
         padding: '20px',
       }}
     >
-      <Card elevation={6} sx={{ maxWidth: 900, width: '100%', borderRadius: '12px',backgroundColor: '#f5f5f5', }}>
+      <Card elevation={6} sx={{ maxWidth: 900, width: '100%', borderRadius: '12px',backgroundColor: '#f5f5f5', ':hover': {boxShadow: 20} }}>
         <CardContent>
           <Grid container spacing={4} alignItems="center">
             {/* Profile Picture and Name Section */}
@@ -168,7 +168,9 @@ const Profile = () => {
                         marginBottom: '16px',
                         border: '5px solid #1976d2',
                         cursor: 'pointer',
-
+                         ':hover': {
+                          boxShadow: 20,
+                        },
                       }}
                       onClick={handleImageClick}
                     />

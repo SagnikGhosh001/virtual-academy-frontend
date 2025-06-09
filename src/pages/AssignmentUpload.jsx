@@ -30,7 +30,7 @@ import { addAssignmentUpload, assignmentUploadByAssignmentId, deleteAssignmentUp
 import Dragger from 'antd/es/upload/Dragger';
 import { PDFDocument, rgb } from 'pdf-lib';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
-import 'pdfjs-dist/webpack'; 
+import 'pdfjs-dist/webpack';
 import PDFAnnotationComponent from '../components/PDFAnnotationComponent'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -39,7 +39,7 @@ import { pdfjs } from 'react-pdf';
 const AssignmentUpload = () => {
     useEffect(() => {
         document.title = "Virtual Academy | Uploaded Assignments";
-      }, []);
+    }, []);
     const { user } = useSelector((state) => state.auth);
     const { assignmentUploads, assignmentAssignmentUploads, loading } = useSelector((state) => state.assignmentUpload);
     const dispatch = useDispatch();
@@ -133,7 +133,7 @@ const AssignmentUpload = () => {
         reset({
             marks: record.marks || '',
             remarks: record.remarks || ''
-          });
+        });
         try {
             // Fetch the PDF as a Blob from the backend
             const pdfBlob = await dispatch(downloadBlobPdf(record.id)).unwrap(); // Get Blob from thunk
@@ -185,12 +185,12 @@ const AssignmentUpload = () => {
     ) : [];
 
     const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80, hide: true },
+        { field: 'serialNo', headerName: 'S.No.', width: 80, hide: true, renderCell: (params) => params.api.getAllRowIds().indexOf(params.id) + 1 },
 
         { field: 'studentName', headerName: 'Student', width: 200 },
         { field: 'reg', headerName: 'Registration', width: 200 },
         { field: 'marks', headerName: 'Marks', width: 200 },
-        { field: 'remarks', headerName: 'Remarks', width: 200,renderCell: (params) => (params.value ? params.value : 'Not Given') },
+        { field: 'remarks', headerName: 'Remarks', width: 200, renderCell: (params) => (params.value ? params.value : 'Not Given') },
         { field: 'teachername', headerName: 'Teacher', width: 200 },
         { field: 'assignmentName', headerName: 'Assignment', width: 250 },
         { field: 'subjectname', headerName: 'Subject', width: 250 },
@@ -264,9 +264,41 @@ const AssignmentUpload = () => {
 
     return (
         <Box sx={{ padding: '20px' }}>
-            <Typography variant="h4" textAlign="center" gutterBottom>
-                Uploaded Assignment Page
-            </Typography>
+            <Grid container alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                {/* Left spacer */}
+                <Grid item xs={false} sm={2} md={3} />
+                <Grid item xs={12} sm={8} md={6}>
+                    <Typography variant="h4" textAlign="center" gutterBottom >
+                        Uploaded Assignment
+                    </Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    sm={2}
+                    md={3}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'center', sm: 'flex-end' },
+                        mt: { sm: 0 }
+                    }}
+                >
+                    {
+                        user?.role === "student" ? (
+                            <>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => setIsModalOpen(true)}
+
+                                >
+                                    Upload Assignment
+                                </Button>
+                            </>
+                        ) : ''
+                    }
+                </Grid>
+            </Grid>
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View uploaded assignment.
             </Typography>
@@ -283,22 +315,6 @@ const AssignmentUpload = () => {
                     />
                 </Box>
             </Box>
-            <Grid container justifyContent="center" sx={{ marginTop: '20px' }}>
-                {
-                    user?.role === "student" ? (
-                        <>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => setIsModalOpen(true)}
-                            >
-                                Upload Assignment
-                            </Button>
-                        </>
-                    ) : ''
-                }
-
-            </Grid>
             <Modal
                 title={editNotesId ? 'Check Uploaded Assignment' : 'Submit Your Assignment'}
                 open={isEditModalOpen || isModalOpen}
@@ -311,7 +327,7 @@ const AssignmentUpload = () => {
                 footer={null}
                 width="80%"
                 centered
-                
+
             >
                 <Box sx={{ padding: '20px' }}>
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -371,7 +387,7 @@ const AssignmentUpload = () => {
                                         color="primary"
                                         fullWidth
                                         sx={{ height: '50px' }}
-                                        onClick={() => setIsEditPdfModalOpen(true)} 
+                                        onClick={() => setIsEditPdfModalOpen(true)}
                                     >
                                         Check PDF
                                     </Button>
@@ -412,7 +428,7 @@ const AssignmentUpload = () => {
                 footer={null}
                 width="100%"
                 centered
-                
+
             >
 
                 {selectedPdf && (

@@ -125,7 +125,7 @@ function Dashboard() {
 
         const res = await dispatch(joinroom(payload))
         console.log(res);
-        
+
         if (res?.payload?.status === 200) {
           notification.success({ message: 'Room Joind successfully!' });
           setOpenRoomModal(false);
@@ -229,12 +229,14 @@ function Dashboard() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom>
-        Welcome to the Dashboard
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        This is the main control panel where you can manage your account and access various features.
-      </Typography>
+
+        <Typography variant="h4" gutterBottom style={{textAlign:'center'}}>
+          Welcome to the Dashboard
+        </Typography >
+        <Typography variant="subtitle1" gutterBottom style={{textAlign:'center'}}>
+          This is the main control panel where you can manage your account and access various features.
+        </Typography>
+
 
       <Grid container spacing={3} style={{ marginTop: '20px' }}>
         {accessibleFeatures.map((feature, index) => (

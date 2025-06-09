@@ -112,7 +112,7 @@ const TotalAdmins = () => {
 
 
     const columns = [
-        { field: 'id', headerName: 'S.No.', width: 80 },
+        { field: 'serialNo', headerName: 'S.No.', width: 80 ,renderCell: (params) => params.api.getAllRowIds().indexOf(params.id)+1},
         {
             field: 'profilePic',
             headerName: 'Profile Picture',
@@ -163,8 +163,14 @@ const TotalAdmins = () => {
         //             ? dayjs(params.row.modifiedAt).format('DD/MM/YYYY HH:mm')
         //             : 'Never Updated',
         // },
-        { field: 'createdAt', headerName: 'Created At', sortable: true, },
-        { field: 'modifiedAt', headerName: 'Updated At', sortable: true },
+        { field: 'createdAt', headerName: 'Created At', sortable: true,
+            renderCell: (params) =>
+        dayjs(params.value).isValid() ? dayjs(params.value).format('DD/MM/YYYY HH:mm') : 'N/A',
+         },
+        { field: 'modifiedAt', headerName: 'Updated At', sortable: true ,
+            renderCell: (params) =>
+        dayjs(params.value).isValid() ? dayjs(params.value).format('DD/MM/YYYY HH:mm') : 'N/A',
+        },
         {
             field: 'actions',
             headerName: 'Actions',
@@ -195,7 +201,7 @@ const TotalAdmins = () => {
     return (
         <Box sx={{ padding: '20px' }}>
             <Typography variant="h4" textAlign="center" gutterBottom>
-                Admins Page
+                Admins
             </Typography>
             <Typography variant="subtitle1" textAlign="center" gutterBottom>
                 View our admins.

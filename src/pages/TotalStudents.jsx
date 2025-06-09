@@ -172,7 +172,7 @@ const TotalStudents = () => {
     },
   }));
   const columns = [
-    { field: 'id', headerName: 'S.No.', width: 80, hide: true },
+    { field: 'serialNo', headerName: 'S.No.', width: 80, hide: true,renderCell: (params) => params.api.getAllRowIds().indexOf(params.id)+1 },
     {
       field: 'profilePic',
       headerName: 'Profile Picture',
@@ -269,7 +269,7 @@ const TotalStudents = () => {
   return (
     <Box sx={{ padding: '20px' }}>
       <Typography variant="h4" textAlign="center" gutterBottom>
-        Student Page
+        Students
       </Typography>
       <Typography variant="subtitle1" textAlign="center" gutterBottom>
         View our students.

@@ -158,11 +158,11 @@ const Chat = () => {
     let token;
     try {
       const parsed = JSON.parse(storedToken);
-      token = parsed.token; // Extract the raw JWT: "eyJhbG..."
+      token = parsed.token; 
       if (!token) throw new Error("No token field in stored JSON");
     } catch (e) {
       console.error("Failed to parse token:", e);
-      token = storedToken; // Fallback if it’s not JSON
+      token = storedToken; 
     }
     if (!token) {
       console.error("No valid token available");
@@ -170,12 +170,13 @@ const Chat = () => {
     }
     // const socket = new SockJS('http://localhost:9091/ws-chat');
     const socket = new SockJS(
+    //   `https://troy-classroom-lowest-productivity.trycloudflare.com/ws-chat?Authorization=Bearer ${token}`
       `http://localhost:9091/ws-chat?Authorization=Bearer ${token}`
     );
     const client = new Client({
       webSocketFactory: () => socket,
-      reconnectDelay: 5000, // Retry every 5 seconds if disconnected
-      heartbeatIncoming: 4000, // Check server is alive every 4s
+      reconnectDelay: 5000, 
+      heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       // debug: (str) => console.log('[WS]', str),
     });
